@@ -68,7 +68,7 @@ export default function ReportPage() {
     <div className="min-h-screen bg-void text-text-primary font-sans">
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-surface-border/50 bg-void/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 md:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link to="/" className="text-xl font-bold tracking-tight">
             <span className="text-ember">Model</span>Pick
           </Link>
@@ -78,12 +78,12 @@ export default function ReportPage() {
         </div>
       </nav>
 
-      <div className="mx-auto max-w-[1200px] px-4 pt-8 pb-16 md:px-6 space-y-8">
+      <div className="mx-auto max-w-6xl px-4 pt-10 pb-20 sm:px-6 lg:px-8 space-y-12">
         {/* (a) Header */}
-        <div className="bg-surface border border-surface-border rounded-2xl p-5 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-semibold text-text-primary">Benchmark Report — Receipt Data Extraction</h1>
-            <p className="text-xs text-text-muted mt-1">
+            <h1 className="text-2xl font-semibold text-text-primary">Benchmark Report — Receipt Data Extraction</h1>
+            <p className="text-sm text-text-muted mt-2">
               Feb 10, 2026 · 20 models · 1,000 runs · ID: bench_demo123
             </p>
           </div>
@@ -128,8 +128,8 @@ export default function ReportPage() {
 
         {/* (c) Ranked Results Table */}
         <div className="bg-surface border border-surface-border rounded-2xl overflow-hidden">
-          <h2 className="text-lg font-semibold px-6 pt-6 pb-2">All Models Ranked</h2>
-            <div className="overflow-x-auto mt-4">
+          <h2 className="text-lg font-semibold px-6 pt-6 pb-4">All Models Ranked</h2>
+            <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[800px]">
                 <thead>
                   <tr className="bg-surface-raised">
@@ -164,16 +164,16 @@ export default function ReportPage() {
                         m.rank === 1 ? 'bg-ember/[0.03] border-l-[3px] border-l-ember' : ''
                       }`}
                     >
-                      <td className={`px-4 py-3 font-mono ${m.rank === 1 ? 'text-ember font-semibold' : 'text-text-muted'}`}>
+                      <td className={`px-4 py-4 font-mono ${m.rank === 1 ? 'text-ember font-semibold' : 'text-text-muted'}`}>
                         {m.rank === 1 ? <Trophy size={16} className="text-ember" /> : m.rank}
                       </td>
-                      <td className={`px-4 py-3 font-medium ${m.rank === 1 ? 'text-text-primary' : 'text-text-secondary'}`}>{m.model}</td>
-                      <td className="px-4 py-3 text-text-muted text-xs">{m.provider}</td>
-                      <td className="px-4 py-3 text-center"><CorrectBadge pct={m.correct} /></td>
-                      <td className="px-4 py-3 text-center font-mono text-text-secondary">{m.p95}s</td>
-                      <td className="px-4 py-3 text-center font-mono text-text-secondary">{m.p99}s</td>
-                      <td className="px-4 py-3 text-center font-mono text-text-secondary">{m.ttft}s</td>
-                      <td className="px-4 py-3 text-right font-mono text-text-secondary">${m.costPerRun}</td>
+                      <td className={`px-4 py-4 font-medium ${m.rank === 1 ? 'text-text-primary' : 'text-text-secondary'}`}>{m.model}</td>
+                      <td className="px-4 py-4 text-text-muted text-xs">{m.provider}</td>
+                      <td className="px-4 py-4 text-center"><CorrectBadge pct={m.correct} /></td>
+                      <td className="px-4 py-4 text-center font-mono text-text-secondary">{m.p95}s</td>
+                      <td className="px-4 py-4 text-center font-mono text-text-secondary">{m.p99}s</td>
+                      <td className="px-4 py-4 text-center font-mono text-text-secondary">{m.ttft}s</td>
+                      <td className="px-4 py-4 text-right font-mono text-text-secondary">${m.costPerRun}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -182,20 +182,20 @@ export default function ReportPage() {
         </div>
 
         {/* (d) Charts */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Visual Comparison</h2>
+        <div className="space-y-6">
+          <h2 className="text-xl font-semibold mb-2">Visual Comparison</h2>
           
           {/* Accuracy vs Cost — CSS-based scatter */}
-          <div className="bg-surface border border-surface-border rounded-xl p-5 mb-4">
-            <h3 className="text-base font-semibold text-text-primary mb-2">Accuracy vs Cost</h3>
-            <p className="text-xs text-text-muted mb-4">Higher + left = better (more accurate, cheaper)</p>
-            <div className="relative h-[360px] border-l border-b border-surface-border/50 ml-10 mr-4">
+          <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8">
+            <h3 className="text-lg font-semibold text-text-primary mb-1">Accuracy vs Cost</h3>
+            <p className="text-sm text-text-muted mb-6">Higher + left = better (more accurate, cheaper)</p>
+            <div className="relative h-[420px] border-l border-b border-surface-border/50 ml-12 mr-6">
               {/* Y-axis labels */}
-              <div className="absolute -left-10 top-0 bottom-0 flex flex-col justify-between text-[10px] text-text-muted font-mono">
+              <div className="absolute -left-12 top-0 bottom-0 flex flex-col justify-between text-xs text-text-muted font-mono">
                 <span>100%</span><span>90%</span><span>80%</span><span>70%</span><span>60%</span><span>50%</span>
               </div>
               {/* X-axis labels */}
-              <div className="absolute -bottom-5 left-0 right-0 flex justify-between text-[10px] text-text-muted font-mono">
+              <div className="absolute -bottom-6 left-0 right-0 flex justify-between text-xs text-text-muted font-mono">
                 <span>$0</span><span>$0.005</span><span>$0.010</span><span>$0.015</span><span>$0.020</span>
               </div>
               {/* Grid lines */}
@@ -209,7 +209,7 @@ export default function ReportPage() {
                 return (
                   <div
                     key={m.model}
-                    className="absolute w-4 h-4 rounded-full border-2 border-void -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-150 transition-transform group"
+                    className="absolute w-5 h-5 rounded-full border-2 border-void -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-150 transition-transform group"
                     style={{
                       left: `${Math.min(x, 98)}%`,
                       bottom: `${Math.min(y, 98)}%`,
@@ -225,7 +225,7 @@ export default function ReportPage() {
                 );
               })}
             </div>
-            <div className="flex flex-wrap gap-3 mt-8 justify-center">
+            <div className="flex flex-wrap gap-4 mt-10 justify-center">
               {Object.entries(PROVIDER_COLORS).map(([provider, color]) => (
                 <div key={provider} className="flex items-center gap-1.5 text-xs text-text-muted">
                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
@@ -235,10 +235,10 @@ export default function ReportPage() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-4">
+          <div className="grid lg:grid-cols-2 gap-6">
             {/* Latency Chart */}
-            <div className="bg-surface border border-surface-border rounded-xl p-5">
-              <h3 className="text-base font-semibold text-text-primary mb-4">P95 Latency Comparison</h3>
+            <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8">
+              <h3 className="text-lg font-semibold text-text-primary mb-6">P95 Latency Comparison</h3>
               <div className="h-[500px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -288,8 +288,8 @@ export default function ReportPage() {
             </div>
 
             {/* Cost Chart */}
-            <div className="bg-surface border border-surface-border rounded-xl p-5">
-              <h3 className="text-base font-semibold text-text-primary mb-4">Cost per Run</h3>
+            <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8">
+              <h3 className="text-lg font-semibold text-text-primary mb-6">Cost per Run</h3>
               <div className="h-[500px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -334,10 +334,10 @@ export default function ReportPage() {
         </div>
 
         {/* (e) Cost Calculator */}
-        <div className="bg-surface border border-surface-border rounded-xl p-5 md:p-6">
-          <h2 className="text-lg font-semibold text-text-primary mb-4">💰 Monthly Cost Calculator</h2>
+        <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8">
+          <h2 className="text-xl font-semibold text-text-primary mb-6">💰 Monthly Cost Calculator</h2>
 
-          <div className="mb-6">
+          <div className="mb-8">
             <label className="block text-sm text-text-secondary mb-2">How many extractions per day?</label>
             <div className="flex items-center gap-4">
               <input
@@ -357,14 +357,14 @@ export default function ReportPage() {
             </div>
           </div>
 
-          <div className="space-y-1">
+          <div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-surface-border">
-                    <th className="py-2 text-left text-[11px] font-medium text-text-muted uppercase tracking-wider">Model</th>
-                    <th className="py-2 text-right text-[11px] font-medium text-text-muted uppercase tracking-wider whitespace-nowrap">Monthly Cost</th>
-                    <th className="py-2 text-right text-[11px] font-medium text-text-muted uppercase tracking-wider whitespace-nowrap">vs GPT-4o</th>
+                    <th className="py-3 text-left text-[11px] font-medium text-text-muted uppercase tracking-wider">Model</th>
+                    <th className="py-3 text-right text-[11px] font-medium text-text-muted uppercase tracking-wider whitespace-nowrap">Monthly Cost</th>
+                    <th className="py-3 text-right text-[11px] font-medium text-text-muted uppercase tracking-wider whitespace-nowrap">vs GPT-4o</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -380,14 +380,14 @@ export default function ReportPage() {
                         key={m.model}
                         className={`border-b border-surface-border/30 ${isWinner ? 'bg-ember/5' : ''}`}
                       >
-                        <td className="py-2.5 pr-4">
+                        <td className="py-3.5 pr-4">
                           <div className="flex items-center gap-2">
                             <span className={`${isWinner ? 'text-ember font-medium' : 'text-text-secondary'}`}>{m.model}</span>
                             {isWinner && <span className="text-[10px] bg-ember/20 text-ember px-1.5 py-0.5 rounded-full font-semibold shrink-0">Winner</span>}
                           </div>
                         </td>
-                        <td className="py-2.5 text-right font-mono text-text-primary whitespace-nowrap">${cost.toFixed(0)}/mo</td>
-                        <td className={`py-2.5 text-right font-mono whitespace-nowrap ${
+                        <td className="py-3.5 text-right font-mono text-text-primary whitespace-nowrap">${cost.toFixed(0)}/mo</td>
+                        <td className={`py-3.5 text-right font-mono whitespace-nowrap ${
                           isGpt4o ? 'text-text-muted' : diff < 0 ? 'text-success' : 'text-danger'
                         }`}>
                           {isGpt4o ? '—' : `${diff < 0 ? '-' : '+'}$${Math.abs(diff).toFixed(0)}/mo`}
@@ -410,8 +410,8 @@ export default function ReportPage() {
 
         {/* (f) Error Analysis */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">🔍 Where Models Failed</h2>
-          <div className="space-y-3">
+          <h2 className="text-xl font-semibold mb-6">🔍 Where Models Failed</h2>
+          <div className="space-y-4">
             {ERROR_EXAMPLES.map((ex) => {
               const isExpanded = expandedErrors.includes(ex.model);
               const modelData = MODELS.find(m => m.model === ex.model);
@@ -433,15 +433,15 @@ export default function ReportPage() {
                     <ChevronDown className={`w-4 h-4 text-text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
                   {isExpanded && (
-                    <div className="px-5 pb-5 border-t border-surface-border/50">
-                      <p className="text-sm text-text-secondary mt-4 mb-4">
+                    <div className="px-6 pb-6 border-t border-surface-border/50">
+                      <p className="text-sm text-text-secondary mt-5 mb-5">
                         {Math.round((100 - (modelData?.correct || 0)) / 100 * 50)} of 50 runs had errors. Common failure patterns:
                       </p>
                       
                       {/* Error details */}
-                      <div className="space-y-3 mb-4">
+                      <div className="space-y-4 mb-6">
                         {ex.errors.map((err, i) => (
-                          <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-surface-raised border border-surface-border">
+                          <div key={i} className="flex items-start gap-4 p-4 rounded-lg bg-surface-raised border border-surface-border">
                             <span className="text-xs font-mono text-text-muted shrink-0 mt-0.5">{err.field}</span>
                             <div className="flex-1">
                               <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -456,16 +456,16 @@ export default function ReportPage() {
                       </div>
 
                       {/* Side-by-side JSON diff */}
-                      <div className="grid md:grid-cols-2 gap-3">
+                      <div className="grid md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs font-semibold text-green-400 mb-2">✅ Expected</p>
-                          <pre className="bg-[#0D0D0E] border border-surface-border rounded-lg p-3 text-xs font-mono text-green-400/80 overflow-x-auto leading-relaxed whitespace-pre-wrap">
+                          <pre className="bg-[#0D0D0E] border border-surface-border rounded-lg p-4 text-xs font-mono text-green-400/80 overflow-x-auto leading-relaxed whitespace-pre-wrap">
                             {JSON.stringify(ex.fullExpected, null, 2)}
                           </pre>
                         </div>
                         <div>
                           <p className="text-xs font-semibold text-red-400 mb-2">❌ Actual (model output)</p>
-                          <pre className="bg-[#0D0D0E] border border-red-400/20 rounded-lg p-3 text-xs font-mono text-red-400/80 overflow-x-auto leading-relaxed whitespace-pre-wrap">
+                          <pre className="bg-[#0D0D0E] border border-red-400/20 rounded-lg p-4 text-xs font-mono text-red-400/80 overflow-x-auto leading-relaxed whitespace-pre-wrap">
                             {JSON.stringify(ex.fullActual, null, 2)}
                           </pre>
                         </div>
@@ -480,8 +480,8 @@ export default function ReportPage() {
 
         {/* (g) Raw Run Data */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">📊 Raw Run Data</h2>
-          <div className="space-y-3">
+          <h2 className="text-xl font-semibold mb-6">📊 Raw Run Data</h2>
+          <div className="space-y-4">
             {MODELS.map((m) => {
               const isExpanded = expandedRuns.includes(m.model);
               const allRuns = isExpanded ? generateRunData(m) : [];
@@ -502,8 +502,8 @@ export default function ReportPage() {
                     <ChevronDown className={`w-4 h-4 text-text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
                   {isExpanded && (
-                    <div className="px-5 pb-4 border-t border-surface-border/50">
-                      <div className="mt-3">
+                    <div className="px-6 pb-6 border-t border-surface-border/50">
+                      <div className="mt-4">
                         <table className="w-full text-xs">
                           <thead>
                             <tr className="border-b border-surface-border">
@@ -521,15 +521,15 @@ export default function ReportPage() {
                                   i % 2 === 0 ? 'bg-surface' : 'bg-surface-raised/30'
                                 } ${run.correct ? 'border-l-2 border-l-success/30' : 'border-l-2 border-l-danger/40 bg-red-500/5'}`}
                               >
-                                <td className="py-1.5 pl-3 font-mono text-text-muted">{run.run}</td>
-                                <td className="py-1.5 text-center">
+                                <td className="py-2.5 pl-3 pr-2 font-mono text-text-muted">{run.run}</td>
+                                <td className="py-2.5 text-center">
                                   {run.correct
                                     ? <span className="text-success">✓</span>
                                     : <span className="text-danger">✗</span>
                                   }
                                 </td>
-                                <td className="py-1.5 text-right font-mono text-text-secondary">{run.responseTime}s</td>
-                                <td className="py-1.5 text-right font-mono text-text-secondary">{run.tokens}</td>
+                                <td className="py-2.5 text-right font-mono text-text-secondary">{run.responseTime}s</td>
+                                <td className="py-2.5 text-right pr-2 font-mono text-text-secondary">{run.tokens}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -562,7 +562,7 @@ export default function ReportPage() {
 
       {/* Footer */}
       <footer className="border-t border-surface-border bg-void">
-        <div className="mx-auto max-w-[1200px] px-4 py-8 md:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="text-sm text-text-muted">
               <span className="font-semibold text-text-secondary"><span className="text-ember">Model</span>Pick</span> © 2026

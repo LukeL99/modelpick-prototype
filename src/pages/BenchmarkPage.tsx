@@ -36,14 +36,14 @@ export default function BenchmarkPage() {
     <div className="min-h-screen bg-void text-text-primary font-sans">
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-surface-border/50 bg-void/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 md:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link to="/" className="text-xl font-bold tracking-tight">
             <span className="text-ember">Model</span>Pick
           </Link>
         </div>
       </nav>
 
-      <div className="mx-auto max-w-[800px] px-4 pt-8 pb-32 md:px-6">
+      <div className="mx-auto max-w-3xl px-4 pt-10 pb-32 sm:px-6 lg:px-8">
         {/* Progress */}
         <div className="flex items-center gap-2 mb-8">
           <div className="flex items-center gap-2">
@@ -62,11 +62,11 @@ export default function BenchmarkPage() {
           </div>
         </div>
 
-        <h1 className="text-3xl font-bold mb-2">Set Up Your Benchmark</h1>
-        <p className="text-text-secondary mb-8">Upload images, define expected output, and choose your models.</p>
+        <h1 className="text-3xl font-bold mb-3">Set Up Your Benchmark</h1>
+        <p className="text-text-secondary mb-10">Upload images, define expected output, and choose your models.</p>
 
         {/* Section A: Upload Images */}
-        <div className="mb-10">
+        <div className="mb-12">
           <h2 className="text-lg font-semibold mb-1">Upload Sample Images</h2>
           <p className="text-sm text-text-muted mb-4">Upload 3-5 sample images of your documents</p>
           
@@ -117,7 +117,7 @@ export default function BenchmarkPage() {
         </div>
 
         {/* Section B: Define Expected Output */}
-        <div className="mb-10">
+        <div className="mb-12">
           <h2 className="text-lg font-semibold mb-1">Define Expected Output</h2>
           <p className="text-sm text-text-muted mb-4">The JSON you expect models to extract from your images</p>
           
@@ -137,7 +137,7 @@ export default function BenchmarkPage() {
         </div>
 
         {/* Section C: Configure Run */}
-        <div className="mb-10">
+        <div className="mb-12">
           <h2 className="text-lg font-semibold mb-1">Configure Run</h2>
           <p className="text-sm text-text-muted mb-4">Select models and runs per model</p>
 

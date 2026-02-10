@@ -51,7 +51,7 @@ export default function SharedReportPage() {
     <div className="min-h-screen bg-void text-text-primary font-sans">
       {/* Shared banner */}
       <div className="bg-ember border-b border-ember px-4 py-3">
-        <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Share2 className="w-4 h-4 text-white/80" />
             <span className="text-sm text-white/90 font-medium">
@@ -68,23 +68,23 @@ export default function SharedReportPage() {
       </div>
 
       {/* Nav */}
-      <nav className="border-b border-surface-border bg-void px-4 py-4">
-        <div className="max-w-[1200px] mx-auto">
+      <nav className="border-b border-surface-border bg-void px-4 py-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
           <Link to="/" className="text-xl font-bold tracking-tight">
             <span className="text-ember">Model</span>Pick
           </Link>
         </div>
       </nav>
 
-      <div className="mx-auto max-w-[1200px] px-4 pt-8 pb-16 md:px-6 space-y-10">
+      <div className="mx-auto max-w-6xl px-4 pt-10 pb-20 sm:px-6 lg:px-8 space-y-12">
         {/* Header */}
-        <div className="bg-surface border border-surface-border rounded-xl p-5 md:p-6">
-          <h1 className="text-xl font-semibold text-text-primary">Benchmark Report — Receipt Data Extraction</h1>
-          <p className="text-xs text-text-muted mt-1">Feb 10, 2026 · 20 models · 1,000 runs · ID: bench_demo123</p>
+        <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8">
+          <h1 className="text-2xl font-semibold text-text-primary">Benchmark Report — Receipt Data Extraction</h1>
+          <p className="text-sm text-text-muted mt-2">Feb 10, 2026 · 20 models · 1,000 runs · ID: bench_demo123</p>
         </div>
 
         {/* Recommendation */}
-        <div className="rounded-xl border border-ember bg-surface p-6 md:p-8 shadow-[0_0_30px_rgba(249,115,22,0.08)]">
+        <div className="rounded-2xl border-2 border-ember bg-surface p-6 md:p-8 shadow-[0_0_40px_rgba(249,115,22,0.12)]">
           <div className="flex items-center gap-2 text-sm font-semibold text-ember uppercase tracking-wider">
             <Trophy size={16} /> Our Recommendation
           </div>
@@ -101,9 +101,9 @@ export default function SharedReportPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-surface border border-surface-border rounded-xl overflow-hidden">
-          <h2 className="text-lg font-semibold p-6 pb-0">All Models Ranked</h2>
-            <div className="overflow-x-auto mt-4">
+        <div className="bg-surface border border-surface-border rounded-2xl overflow-hidden">
+          <h2 className="text-lg font-semibold p-6 pb-4">All Models Ranked</h2>
+            <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[800px]">
                 <thead>
                   <tr className="bg-surface-raised">
@@ -133,16 +133,16 @@ export default function SharedReportPage() {
                 <tbody>
                   {sorted.map((m) => (
                     <tr key={m.model} className={`border-b border-surface-border/50 hover:bg-surface-raised/50 transition-colors ${m.rank === 1 ? 'bg-ember/[0.03] border-l-[3px] border-l-ember' : ''}`}>
-                      <td className={`px-4 py-3 font-mono ${m.rank === 1 ? 'text-ember font-semibold' : 'text-text-muted'}`}>
+                      <td className={`px-4 py-4 font-mono ${m.rank === 1 ? 'text-ember font-semibold' : 'text-text-muted'}`}>
                         {m.rank === 1 ? <Trophy size={16} className="text-ember" /> : m.rank}
                       </td>
-                      <td className={`px-4 py-3 font-medium ${m.rank === 1 ? 'text-text-primary' : 'text-text-secondary'}`}>{m.model}</td>
-                      <td className="px-4 py-3 text-text-muted text-xs">{m.provider}</td>
-                      <td className="px-4 py-3 text-center"><CorrectBadge pct={m.correct} /></td>
-                      <td className="px-4 py-3 text-center font-mono text-text-secondary">{m.p95}s</td>
-                      <td className="px-4 py-3 text-center font-mono text-text-secondary">{m.p99}s</td>
-                      <td className="px-4 py-3 text-center font-mono text-text-secondary">{m.ttft}s</td>
-                      <td className="px-4 py-3 text-right font-mono text-text-secondary">${m.costPerRun}</td>
+                      <td className={`px-4 py-4 font-medium ${m.rank === 1 ? 'text-text-primary' : 'text-text-secondary'}`}>{m.model}</td>
+                      <td className="px-4 py-4 text-text-muted text-xs">{m.provider}</td>
+                      <td className="px-4 py-4 text-center"><CorrectBadge pct={m.correct} /></td>
+                      <td className="px-4 py-4 text-center font-mono text-text-secondary">{m.p95}s</td>
+                      <td className="px-4 py-4 text-center font-mono text-text-secondary">{m.p99}s</td>
+                      <td className="px-4 py-4 text-center font-mono text-text-secondary">{m.ttft}s</td>
+                      <td className="px-4 py-4 text-right font-mono text-text-secondary">${m.costPerRun}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -151,10 +151,10 @@ export default function SharedReportPage() {
         </div>
 
         {/* Charts */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Visual Comparison</h2>
-          <div className="bg-surface border border-surface-border rounded-xl p-5 mb-4">
-            <h3 className="text-base font-semibold text-text-primary mb-4">Accuracy vs Cost</h3>
+        <div className="space-y-6">
+          <h2 className="text-xl font-semibold mb-2">Visual Comparison</h2>
+          <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8">
+            <h3 className="text-lg font-semibold text-text-primary mb-6">Accuracy vs Cost</h3>
             <div className="h-[400px]">
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ left: 10, right: 20, top: 10, bottom: 10 }}>
@@ -174,9 +174,9 @@ export default function SharedReportPage() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-4">
-            <div className="bg-surface border border-surface-border rounded-xl p-5">
-              <h3 className="text-base font-semibold text-text-primary mb-4">P95 Latency</h3>
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8">
+              <h3 className="text-lg font-semibold text-text-primary mb-6">P95 Latency</h3>
               <div className="h-[500px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={[...MODELS].sort((a, b) => a.p95 - b.p95).map(m => ({ name: m.model.length > 20 ? m.model.slice(0, 18) + '…' : m.model, p95: m.p95, tier: m.tier }))} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
@@ -190,8 +190,8 @@ export default function SharedReportPage() {
                 </ResponsiveContainer>
               </div>
             </div>
-            <div className="bg-surface border border-surface-border rounded-xl p-5">
-              <h3 className="text-base font-semibold text-text-primary mb-4">Cost per Run</h3>
+            <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8">
+              <h3 className="text-lg font-semibold text-text-primary mb-6">Cost per Run</h3>
               <div className="h-[500px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={[...MODELS].sort((a, b) => a.costPerRun - b.costPerRun).map(m => ({ name: m.model.length > 20 ? m.model.slice(0, 18) + '…' : m.model, cost: m.costPerRun, isWinner: m.rank === 1 }))} layout="vertical" margin={{ left: 10, right: 20, top: 5, bottom: 5 }}>
@@ -209,9 +209,9 @@ export default function SharedReportPage() {
         </div>
 
         {/* Cost Calculator */}
-        <div className="bg-surface border border-surface-border rounded-xl p-5 md:p-6">
-          <h2 className="text-lg font-semibold text-text-primary mb-4">💰 Monthly Cost Calculator</h2>
-          <div className="mb-6">
+        <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8">
+          <h2 className="text-xl font-semibold text-text-primary mb-6">💰 Monthly Cost Calculator</h2>
+          <div className="mb-8">
             <label className="block text-sm text-text-secondary mb-2">How many extractions per day?</label>
             <div className="flex items-center gap-4">
               <input type="range" min="100" max="10000" step="100" value={dailyExtractions} onChange={(e) => setDailyExtractions(parseInt(e.target.value))} className="flex-1" />
@@ -246,8 +246,8 @@ export default function SharedReportPage() {
 
         {/* Error Analysis */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">🔍 Where Models Failed</h2>
-          <div className="space-y-3">
+          <h2 className="text-xl font-semibold mb-6">🔍 Where Models Failed</h2>
+          <div className="space-y-4">
             {ERROR_EXAMPLES.map((ex) => {
               const isExpanded = expandedErrors.includes(ex.model);
               const modelData = MODELS.find(m => m.model === ex.model);
@@ -264,10 +264,10 @@ export default function SharedReportPage() {
                     <ChevronDown className={`w-4 h-4 text-text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
                   {isExpanded && (
-                    <div className="px-5 pb-5 border-t border-surface-border/50">
-                      <div className="space-y-3 mt-4 mb-4">
+                    <div className="px-6 pb-6 border-t border-surface-border/50">
+                      <div className="space-y-4 mt-5 mb-6">
                         {ex.errors.map((err, i) => (
-                          <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-surface-raised border border-surface-border">
+                          <div key={i} className="flex items-start gap-4 p-4 rounded-lg bg-surface-raised border border-surface-border">
                             <span className="text-xs font-mono text-text-muted shrink-0">{err.field}</span>
                             <div className="flex-1">
                               <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -300,8 +300,8 @@ export default function SharedReportPage() {
 
         {/* Raw Run Data */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">📊 Raw Run Data</h2>
-          <div className="space-y-3">
+          <h2 className="text-xl font-semibold mb-6">📊 Raw Run Data</h2>
+          <div className="space-y-4">
             {MODELS.map((m) => {
               const isExpanded = expandedRuns.includes(m.model);
               const allRuns = isExpanded ? generateRunData(m) : [];
@@ -360,7 +360,7 @@ export default function SharedReportPage() {
 
       {/* Footer */}
       <footer className="border-t border-surface-border bg-void">
-        <div className="mx-auto max-w-[1200px] px-4 py-8 md:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="text-sm text-text-muted"><span className="font-semibold text-text-secondary"><span className="text-ember">Model</span>Pick</span> © 2026</div>
             <div className="flex items-center gap-6 text-sm text-text-muted">

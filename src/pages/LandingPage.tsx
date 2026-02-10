@@ -14,7 +14,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-void text-text-primary font-sans">
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-surface-border/50 bg-void/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 md:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link to="/" className="text-xl font-bold tracking-tight">
             <span className="text-ember">Model</span>Pick
           </Link>
@@ -31,7 +31,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(249,115,22,0.08)_0%,_transparent_60%)]" />
-        <div className="relative mx-auto max-w-[1200px] px-4 pt-20 pb-16 md:px-6 md:pt-28 md:pb-24">
+        <div className="relative mx-auto max-w-6xl px-4 pt-20 pb-16 sm:px-6 lg:px-8 md:pt-28 md:pb-24">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-4xl font-bold leading-[1.1] tracking-tight md:text-[56px] lg:text-[64px]">
               Find the best vision model for your data extraction.
@@ -54,7 +54,7 @@ export default function LandingPage() {
 
       {/* How It Works */}
       <section id="how" className="border-t border-surface-border bg-surface/50">
-        <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 md:py-24">
           <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">How it works</h2>
           <p className="mt-4 text-center text-text-secondary">Three steps. Ten minutes. Done.</p>
           <div className="mt-12 grid gap-8 md:grid-cols-3 md:gap-12">
@@ -76,7 +76,7 @@ export default function LandingPage() {
 
       {/* Example Report Preview */}
       <section className="border-t border-surface-border">
-        <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 md:py-24">
           <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">See a real report</h2>
           <p className="mt-4 text-center text-text-secondary">Receipt Data Extraction — 20 vision models, 50 runs each</p>
 
@@ -101,24 +101,24 @@ export default function LandingPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-surface-border text-xs font-semibold uppercase tracking-wider text-text-muted">
-                  <th className="px-3 py-3 text-left">Rank</th>
-                  <th className="px-3 py-3 text-left">Model</th>
-                  <th className="px-3 py-3 text-center">% Correct</th>
-                  <th className="px-3 py-3 text-right">Cost/Run</th>
+                  <th className="px-4 py-3 text-left">Rank</th>
+                  <th className="px-4 py-3 text-left">Model</th>
+                  <th className="px-4 py-3 text-center">% Correct</th>
+                  <th className="px-4 py-3 text-right">Cost/Run</th>
                 </tr>
               </thead>
               <tbody>
                 {MODELS_PREVIEW.map((m) => (
                   <tr key={m.rank} className={`border-b border-surface-border transition-colors hover:bg-surface-raised ${m.winner ? 'bg-ember/5 border-l-2 border-l-ember' : ''}`}>
-                    <td className="px-3 py-3 text-text-muted">{m.winner ? <Trophy size={16} className="text-ember" /> : m.rank}</td>
-                    <td className="px-3 py-3">
+                    <td className="px-4 py-3.5 text-text-muted">{m.winner ? <Trophy size={16} className="text-ember" /> : m.rank}</td>
+                    <td className="px-4 py-3.5">
                       <span className="font-medium">{m.model}</span>
                       <span className="ml-2 text-text-muted text-xs">{m.provider}</span>
                     </td>
-                    <td className="px-3 py-3 text-center">
+                    <td className="px-4 py-3.5 text-center">
                       <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${m.correct >= 95 ? 'bg-success/15 text-success' : m.correct >= 85 ? 'bg-warning/15 text-warning' : m.correct >= 70 ? 'bg-ember/15 text-ember' : 'bg-danger/15 text-danger'}`}>{m.correct}%</span>
                     </td>
-                    <td className="px-3 py-3 text-right font-mono text-text-secondary">{m.cost}</td>
+                    <td className="px-4 py-3.5 text-right font-mono text-text-secondary">{m.cost}</td>
                   </tr>
                 ))}
               </tbody>
@@ -136,7 +136,7 @@ export default function LandingPage() {
 
       {/* What we test */}
       <section className="border-t border-surface-border bg-surface/50">
-        <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 md:py-24">
           <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">What we test</h2>
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -157,7 +157,7 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section id="pricing" className="border-t border-surface-border">
-        <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 md:py-24">
           <h2 className="text-center text-3xl font-semibold tracking-tight md:text-4xl">Simple pricing</h2>
           <p className="mt-4 text-center text-text-secondary">Spend $15, save $144/mo. No subscriptions required.</p>
           <div className="mt-12 mx-auto max-w-3xl grid md:grid-cols-2 gap-6">
@@ -211,7 +211,7 @@ export default function LandingPage() {
 
       {/* CTA */}
       <section className="border-t border-surface-border bg-surface/50">
-        <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-24 text-center">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 md:py-24 text-center">
           <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
             You're probably overpaying for GPT-4o to parse receipts.
           </h2>
@@ -224,7 +224,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-surface-border bg-void">
-        <div className="mx-auto max-w-[1200px] px-4 py-8 md:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="text-sm text-text-muted">
               <span className="font-semibold text-text-secondary"><span className="text-ember">Model</span>Pick</span> © 2026
