@@ -58,6 +58,7 @@ export default function ReportPage() {
   const [expandedRuns, setExpandedRuns] = useState<string[]>([]);
   const [showAllRuns, setShowAllRuns] = useState<string[]>([]);
   const [toast, setToast] = useState<string | null>(null);
+  const [compareModel, setCompareModel] = useState('GPT-4o');
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -80,7 +81,7 @@ export default function ReportPage() {
   });
 
   const top5 = MODELS.slice(0, 5);
-  const gpt4oCost = MODELS.find(m => m.model === 'GPT-4o')!.costPerRun;
+  const compareModelCost = MODELS.find(m => m.model === compareModel)?.costPerRun ?? MODELS[0].costPerRun;
   const cheapestAccurate = MODELS.filter(m => m.correct >= 90).sort((a, b) => a.costPerRun - b.costPerRun)[0];
   const mostExpensiveTop5 = [...top5].sort((a, b) => b.costPerRun - a.costPerRun)[0];
 
@@ -448,23 +449,38 @@ export default function ReportPage() {
         <div className="bg-surface border border-surface-border rounded-2xl p-6 md:p-8">
           <h2 className="text-xl font-semibold text-text-primary mb-6">💰 Monthly Cost Calculator</h2>
 
-          <div className="mb-8">
-            <label className="block text-sm text-text-secondary mb-2">How many extractions per day?</label>
-            <div className="flex items-center gap-4">
-              <input
-                type="range"
-                min="100"
-                max="10000"
-                step="100"
-                value={dailyExtractions}
-                onChange={(e) => setDailyExtractions(parseInt(e.target.value))}
-                className="flex-1"
-              />
-              <span className="text-lg font-mono font-bold text-ember w-20 text-right">{dailyExtractions.toLocaleString()}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+              <label className="block text-sm text-text-secondary mb-2">How many extractions per day?</label>
+              <div className="flex items-center gap-4">
+                <input
+                  type="range"
+                  min="100"
+                  max="10000"
+                  step="100"
+                  value={dailyExtractions}
+                  onChange={(e) => setDailyExtractions(parseInt(e.target.value))}
+                  className="flex-1 accent-ember"
+                  style={{ background: `linear-gradient(to right, #F97316 ${((dailyExtractions - 100) / 9900) * 100}%, #2A2A2D ${((dailyExtractions - 100) / 9900) * 100}%)`, height: '6px', borderRadius: '3px' }}
+                />
+                <span className="text-lg font-mono font-bold text-ember w-20 text-right">{dailyExtractions.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-xs text-text-muted mt-1">
+                <span>100</span>
+                <span>10,000</span>
+              </div>
             </div>
-            <div className="flex justify-between text-xs text-text-muted mt-1">
-              <span>100</span>
-              <span>10,000</span>
+            <div>
+              <label className="block text-sm text-text-secondary mb-2">Compare against (your current model)</label>
+              <select
+                value={compareModel}
+                onChange={(e) => setCompareModel(e.target.value)}
+                className="w-full bg-surface-raised border border-surface-border rounded-lg px-3 py-2.5 text-sm text-text-primary focus:border-ember focus:outline-none"
+              >
+                {MODELS.map((m) => (
+                  <option key={m.model} value={m.model}>{m.model} — ${m.costPerRun.toFixed(4)}/run</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -475,16 +491,16 @@ export default function ReportPage() {
                   <tr className="border-b border-surface-border">
                     <th className="py-3 text-left text-[11px] font-medium text-text-muted uppercase tracking-wider">Model</th>
                     <th className="py-3 text-right text-[11px] font-medium text-text-muted uppercase tracking-wider whitespace-nowrap">Monthly Cost</th>
-                    <th className="py-3 text-right text-[11px] font-medium text-text-muted uppercase tracking-wider whitespace-nowrap">vs GPT-4o</th>
+                    <th className="py-3 text-right text-[11px] font-medium text-text-muted uppercase tracking-wider whitespace-nowrap">vs {compareModel}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {top5.map((m) => {
                     const cost = monthlyCost(m.costPerRun);
-                    const gpt4oMonthlyCost = monthlyCost(gpt4oCost);
-                    const diff = cost - gpt4oMonthlyCost;
+                    const compareMonthly = monthlyCost(compareModelCost);
+                    const diff = cost - compareMonthly;
                     const isWinner = m.rank === 1;
-                    const isGpt4o = m.model === 'GPT-4o';
+                    const isCompareModel = m.model === compareModel;
 
                     return (
                       <tr
@@ -499,9 +515,9 @@ export default function ReportPage() {
                         </td>
                         <td className="py-3.5 text-right font-mono text-text-primary whitespace-nowrap">${cost.toFixed(0)}/mo</td>
                         <td className={`py-3.5 text-right font-mono whitespace-nowrap ${
-                          isGpt4o ? 'text-text-muted' : diff < 0 ? 'text-success' : 'text-danger'
+                          isCompareModel ? 'text-text-muted' : diff < 0 ? 'text-success' : 'text-danger'
                         }`}>
-                          {isGpt4o ? '—' : `${diff < 0 ? '-' : '+'}$${Math.abs(diff).toFixed(0)}/mo`}
+                          {isCompareModel ? '—' : `${diff < 0 ? '-' : '+'}$${Math.abs(diff).toFixed(0)}/mo`}
                         </td>
                       </tr>
                     );
