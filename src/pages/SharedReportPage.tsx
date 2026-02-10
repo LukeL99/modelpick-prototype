@@ -13,7 +13,7 @@ import { MODELS, PROVIDER_COLORS, TIER_COLORS, ERROR_EXAMPLES, generateRunData }
 type SortKey = 'rank' | 'correct' | 'p95' | 'p99' | 'ttft' | 'costPerRun';
 
 function CorrectBadge({ pct }: { pct: number }) {
-  const color = pct >= 90 ? 'bg-success/15 text-success' : pct >= 75 ? 'bg-warning/15 text-warning' : 'bg-danger/15 text-danger';
+  const color = pct >= 95 ? 'bg-success/15 text-success' : pct >= 85 ? 'bg-warning/15 text-warning' : pct >= 70 ? 'bg-ember/15 text-ember' : 'bg-danger/15 text-danger';
   return <span className={`${color} rounded-full px-2 py-0.5 text-xs font-semibold`}>{pct}%</span>;
 }
 
@@ -23,6 +23,7 @@ export default function SharedReportPage() {
   const [dailyExtractions, setDailyExtractions] = useState(1000);
   const [expandedErrors, setExpandedErrors] = useState<string[]>([]);
   const [expandedRuns, setExpandedRuns] = useState<string[]>([]);
+  const [showAllRuns, setShowAllRuns] = useState<string[]>([]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -49,17 +50,17 @@ export default function SharedReportPage() {
   return (
     <div className="min-h-screen bg-void text-text-primary font-sans">
       {/* Shared banner */}
-      <div className="bg-ember/10 border-b border-ember/20 px-4 py-3">
+      <div className="bg-ember border-b border-ember px-4 py-3">
         <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Share2 className="w-4 h-4 text-ember" />
-            <span className="text-sm text-text-secondary">
-              Shared report — Run your own benchmark at <span className="text-ember font-semibold">modelpick.ai</span>
+            <Share2 className="w-4 h-4 text-white/80" />
+            <span className="text-sm text-white/90 font-medium">
+              This is a shared report — Run your own benchmark at <span className="text-white font-bold">modelpick.ai</span>
             </span>
           </div>
           <Link
             to="/benchmark"
-            className="bg-ember hover:bg-orange-600 text-white font-semibold text-sm px-5 py-2 rounded-lg transition-colors"
+            className="bg-white hover:bg-white/90 text-ember font-semibold text-sm px-5 py-2 rounded-lg transition-colors"
           >
             Run your own benchmark →
           </Link>
@@ -75,7 +76,7 @@ export default function SharedReportPage() {
         </div>
       </nav>
 
-      <div className="mx-auto max-w-[1200px] px-4 pt-8 pb-16 md:px-6 space-y-8">
+      <div className="mx-auto max-w-[1200px] px-4 pt-8 pb-16 md:px-6 space-y-12">
         {/* Header */}
         <div className="bg-surface border border-surface-border rounded-xl p-5 md:p-6">
           <h1 className="text-xl font-semibold text-text-primary">Benchmark Report — Receipt Data Extraction</h1>
@@ -305,7 +306,9 @@ export default function SharedReportPage() {
           <div className="space-y-3">
             {MODELS.map((m) => {
               const isExpanded = expandedRuns.includes(m.model);
-              const runs = isExpanded ? generateRunData(m) : [];
+              const allRuns = isExpanded ? generateRunData(m) : [];
+              const showAll = showAllRuns.includes(m.model);
+              const visibleRuns = showAll ? allRuns : allRuns.slice(0, 10);
               return (
                 <div key={m.model} className="bg-surface border border-surface-border rounded-xl overflow-hidden">
                   <button className="w-full flex items-center justify-between px-5 py-3 hover:bg-surface-raised/50 transition-colors" onClick={() => setExpandedRuns(prev => prev.includes(m.model) ? prev.filter(x => x !== m.model) : [...prev, m.model])}>
@@ -317,13 +320,13 @@ export default function SharedReportPage() {
                   </button>
                   {isExpanded && (
                     <div className="px-5 pb-4 border-t border-surface-border/50">
-                      <div className="max-h-[400px] overflow-y-auto mt-3">
+                      <div className="mt-3">
                         <table className="w-full text-xs">
                           <thead><tr className="border-b border-surface-border"><th className="py-2 text-left text-text-muted">Run #</th><th className="py-2 text-center text-text-muted">Correct</th><th className="py-2 text-right text-text-muted">Time</th><th className="py-2 text-right text-text-muted">Tokens</th></tr></thead>
                           <tbody>
-                            {runs.map((run) => (
-                              <tr key={run.run} className={`border-b border-surface-border/30 ${run.correct ? '' : 'bg-red-500/5'}`}>
-                                <td className="py-1.5 font-mono text-text-muted">{run.run}</td>
+                            {visibleRuns.map((run, i) => (
+                              <tr key={run.run} className={`border-b border-surface-border/30 ${i % 2 === 0 ? 'bg-surface' : 'bg-surface-raised/30'} ${run.correct ? 'border-l-2 border-l-success/30' : 'border-l-2 border-l-danger/40 bg-red-500/5'}`}>
+                                <td className="py-1.5 pl-3 font-mono text-text-muted">{run.run}</td>
                                 <td className="py-1.5 text-center">{run.correct ? <span className="text-success">✓</span> : <span className="text-danger">✗</span>}</td>
                                 <td className="py-1.5 text-right font-mono text-text-secondary">{run.responseTime}s</td>
                                 <td className="py-1.5 text-right font-mono text-text-secondary">{run.tokens}</td>
@@ -331,6 +334,22 @@ export default function SharedReportPage() {
                             ))}
                           </tbody>
                         </table>
+                        {!showAll && allRuns.length > 10 && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setShowAllRuns(prev => [...prev, m.model]); }}
+                            className="mt-3 w-full text-center text-xs text-ember hover:text-ember-light font-medium py-2 rounded-lg border border-surface-border hover:bg-surface-raised transition-colors"
+                          >
+                            Show all {allRuns.length} runs
+                          </button>
+                        )}
+                        {showAll && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setShowAllRuns(prev => prev.filter(x => x !== m.model)); }}
+                            className="mt-3 w-full text-center text-xs text-text-muted hover:text-text-secondary font-medium py-2 rounded-lg border border-surface-border hover:bg-surface-raised transition-colors"
+                          >
+                            Show fewer
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}

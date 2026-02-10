@@ -203,12 +203,21 @@ export default function BenchmarkPage() {
           </div>
 
           {/* Pricing display */}
-          <div className="mt-4 rounded-xl border border-surface-border bg-surface p-4 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-text-primary">Estimated cost</p>
-              <p className="text-xs text-text-muted">{selectedModels.length} models × {runsPerModel} runs = {selectedModels.length * runsPerModel} total runs</p>
+          <div className="mt-4 space-y-3">
+            <div className="rounded-xl border border-ember bg-surface p-4 flex items-center justify-between shadow-[0_0_20px_rgba(249,115,22,0.05)]">
+              <div>
+                <p className="text-sm font-medium text-text-primary">One-Time Report</p>
+                <p className="text-xs text-text-muted">{selectedModels.length} models × {runsPerModel} runs · Full report with accuracy, latency, cost, error analysis</p>
+              </div>
+              <p className="text-2xl font-bold text-ember">$14.99</p>
             </div>
-            <p className="text-2xl font-bold text-ember">$14.99</p>
+            <div className="rounded-xl border border-surface-border bg-surface p-4 flex items-center justify-between opacity-70">
+              <div>
+                <p className="text-sm font-medium text-text-primary">+ Monthly Updates <span className="text-xs text-text-muted ml-1">(optional)</span></p>
+                <p className="text-xs text-text-muted">New models tested automatically · Email updates · Cancel anytime</p>
+              </div>
+              <p className="text-lg font-bold text-text-secondary">+$7.50/mo</p>
+            </div>
           </div>
         </div>
 

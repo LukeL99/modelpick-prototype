@@ -13,7 +13,7 @@ import { MODELS, PROVIDER_COLORS, TIER_COLORS, ERROR_EXAMPLES, generateRunData }
 type SortKey = 'rank' | 'correct' | 'p95' | 'p99' | 'ttft' | 'costPerRun';
 
 function CorrectBadge({ pct }: { pct: number }) {
-  const color = pct >= 90 ? 'bg-success/15 text-success' : pct >= 75 ? 'bg-warning/15 text-warning' : 'bg-danger/15 text-danger';
+  const color = pct >= 95 ? 'bg-success/15 text-success' : pct >= 85 ? 'bg-warning/15 text-warning' : pct >= 70 ? 'bg-ember/15 text-ember' : 'bg-danger/15 text-danger';
   return <span className={`${color} rounded-full px-2 py-0.5 text-xs font-semibold`}>{pct}%</span>;
 }
 
@@ -33,6 +33,7 @@ export default function ReportPage() {
   const [dailyExtractions, setDailyExtractions] = useState(1000);
   const [expandedErrors, setExpandedErrors] = useState<string[]>([]);
   const [expandedRuns, setExpandedRuns] = useState<string[]>([]);
+  const [showAllRuns, setShowAllRuns] = useState<string[]>([]);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -77,7 +78,7 @@ export default function ReportPage() {
         </div>
       </nav>
 
-      <div className="mx-auto max-w-[1200px] px-4 pt-8 pb-16 md:px-6 space-y-8">
+      <div className="mx-auto max-w-[1200px] px-4 pt-8 pb-16 md:px-6 space-y-12">
         {/* (a) Header */}
         <div className="bg-surface border border-surface-border rounded-xl p-5 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
@@ -493,7 +494,9 @@ export default function ReportPage() {
           <div className="space-y-3">
             {MODELS.map((m) => {
               const isExpanded = expandedRuns.includes(m.model);
-              const runs = isExpanded ? generateRunData(m) : [];
+              const allRuns = isExpanded ? generateRunData(m) : [];
+              const showAll = showAllRuns.includes(m.model);
+              const visibleRuns = showAll ? allRuns : allRuns.slice(0, 10);
               return (
                 <div key={m.model} className="bg-surface border border-surface-border rounded-xl overflow-hidden">
                   <button
@@ -510,7 +513,7 @@ export default function ReportPage() {
                   </button>
                   {isExpanded && (
                     <div className="px-5 pb-4 border-t border-surface-border/50">
-                      <div className="max-h-[400px] overflow-y-auto mt-3">
+                      <div className="mt-3">
                         <table className="w-full text-xs">
                           <thead>
                             <tr className="border-b border-surface-border">
@@ -521,14 +524,14 @@ export default function ReportPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {runs.map((run) => (
+                            {visibleRuns.map((run, i) => (
                               <tr
                                 key={run.run}
                                 className={`border-b border-surface-border/30 ${
-                                  run.correct ? '' : 'bg-red-500/5'
-                                }`}
+                                  i % 2 === 0 ? 'bg-surface' : 'bg-surface-raised/30'
+                                } ${run.correct ? 'border-l-2 border-l-success/30' : 'border-l-2 border-l-danger/40 bg-red-500/5'}`}
                               >
-                                <td className="py-1.5 font-mono text-text-muted">{run.run}</td>
+                                <td className="py-1.5 pl-3 font-mono text-text-muted">{run.run}</td>
                                 <td className="py-1.5 text-center">
                                   {run.correct
                                     ? <span className="text-success">✓</span>
@@ -541,6 +544,22 @@ export default function ReportPage() {
                             ))}
                           </tbody>
                         </table>
+                        {!showAll && allRuns.length > 10 && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setShowAllRuns(prev => [...prev, m.model]); }}
+                            className="mt-3 w-full text-center text-xs text-ember hover:text-ember-light font-medium py-2 rounded-lg border border-surface-border hover:bg-surface-raised transition-colors"
+                          >
+                            Show all {allRuns.length} runs
+                          </button>
+                        )}
+                        {showAll && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setShowAllRuns(prev => prev.filter(x => x !== m.model)); }}
+                            className="mt-3 w-full text-center text-xs text-text-muted hover:text-text-secondary font-medium py-2 rounded-lg border border-surface-border hover:bg-surface-raised transition-colors"
+                          >
+                            Show fewer
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}
