@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Trophy, Share2, FileDown, DollarSign, Target, ArrowUpDown,
@@ -107,6 +107,7 @@ export default function ReportPage() {
   const [showAllRuns, setShowAllRuns] = useState<string[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [compareModel, setCompareModel] = useState('GPT-4o');
+  const [expandedRunDiffs, setExpandedRunDiffs] = useState<string[]>([]);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -676,24 +677,41 @@ export default function ReportPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {visibleRuns.map((run, i) => (
-                              <tr
-                                key={run.run}
-                                className={`border-b border-surface-border/30 ${
-                                  i % 2 === 0 ? 'bg-surface' : 'bg-surface-raised/30'
-                                } ${run.correct ? 'border-l-2 border-l-success/30' : 'border-l-2 border-l-danger/40 bg-red-500/5'}`}
-                              >
-                                <td className="py-2.5 pl-3 pr-2 font-mono text-text-muted">{run.run}</td>
-                                <td className="py-2.5 text-center">
-                                  {run.correct
-                                    ? <span className="text-success">✓</span>
-                                    : <span className="text-danger">✗</span>
-                                  }
-                                </td>
-                                <td className="py-2.5 text-right font-mono text-text-secondary">{run.responseTime}s</td>
-                                <td className="py-2.5 text-right pr-2 font-mono text-text-secondary">{run.tokens}</td>
-                              </tr>
-                            ))}
+                            {visibleRuns.map((run, i) => {
+                              const runKey = `${m.model}-${run.run}`;
+                              const isRunExpanded = expandedRunDiffs.includes(runKey);
+                              // Find matching error example for this model (if failed)
+                              const errorEx = !run.correct ? ERROR_EXAMPLES.find(ex => ex.model === m.model) : null;
+                              return (
+                                <React.Fragment key={run.run}>
+                                  <tr
+                                    className={`border-b border-surface-border/30 ${
+                                      i % 2 === 0 ? 'bg-surface' : 'bg-surface-raised/30'
+                                    } ${run.correct ? 'border-l-2 border-l-success/30' : 'border-l-2 border-l-danger/40 bg-red-500/5 cursor-pointer hover:bg-red-500/10 transition-colors'}`}
+                                    onClick={!run.correct && errorEx ? () => setExpandedRunDiffs(prev =>
+                                      prev.includes(runKey) ? prev.filter(x => x !== runKey) : [...prev, runKey]
+                                    ) : undefined}
+                                  >
+                                    <td className="py-2.5 pl-3 pr-2 font-mono text-text-muted">{run.run}</td>
+                                    <td className="py-2.5 text-center">
+                                      {run.correct
+                                        ? <span className="text-success">✓</span>
+                                        : <span className="text-danger flex items-center justify-center gap-1">✗ {errorEx && <ChevronDown className={`w-3 h-3 transition-transform ${isRunExpanded ? 'rotate-180' : ''}`} />}</span>
+                                      }
+                                    </td>
+                                    <td className="py-2.5 text-right font-mono text-text-secondary">{run.responseTime}s</td>
+                                    <td className="py-2.5 text-right pr-2 font-mono text-text-secondary">{run.tokens}</td>
+                                  </tr>
+                                  {isRunExpanded && errorEx && (
+                                    <tr>
+                                      <td colSpan={4} className="p-4 bg-[#0D0D0E]">
+                                        <DiffJson expected={errorEx.fullExpected} actual={errorEx.fullActual} />
+                                      </td>
+                                    </tr>
+                                  )}
+                                </React.Fragment>
+                              );
+                            })}
                           </tbody>
                         </table>
                         {!showAll && allRuns.length > 10 && (
