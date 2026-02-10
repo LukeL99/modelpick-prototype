@@ -5,7 +5,7 @@ import {
   ChevronDown, AlertTriangle, ArrowRight
 } from 'lucide-react';
 import {
-  ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip, ResponsiveContainer, Cell,
+  XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
   BarChart, Bar
 } from 'recharts';
 import { MODELS, PROVIDER_COLORS, TIER_COLORS, ERROR_EXAMPLES, generateRunData } from '../data/models';
@@ -187,63 +187,47 @@ export default function ReportPage() {
         <div>
           <h2 className="text-xl font-semibold mb-4">Visual Comparison</h2>
           
-          {/* Accuracy vs Cost Scatter */}
+          {/* Accuracy vs Cost — CSS-based scatter */}
           <div className="bg-surface border border-surface-border rounded-xl p-5 mb-4">
-            <h3 className="text-base font-semibold text-text-primary mb-4">Accuracy vs Cost</h3>
-            <div className="h-[400px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ left: 10, right: 20, top: 10, bottom: 10 }}>
-                  <XAxis
-                    type="number"
-                    dataKey="cost"
-                    name="Cost"
-                    tickFormatter={(v: number) => `$${v}`}
-                    tick={{ fill: '#A1A1AA', fontSize: 11 }}
-                    axisLine={{ stroke: '#2A2A2D' }}
-                    tickLine={false}
-                    label={{ value: '$/run', position: 'bottom', fill: '#71717A', fontSize: 11, offset: -5 }}
-                  />
-                  <YAxis
-                    type="number"
-                    dataKey="correct"
-                    name="% Correct"
-                    domain={[50, 100]}
-                    tick={{ fill: '#A1A1AA', fontSize: 11 }}
-                    axisLine={{ stroke: '#2A2A2D' }}
-                    tickLine={false}
-                    label={{ value: '% Correct', angle: -90, position: 'insideLeft', fill: '#71717A', fontSize: 11 }}
-                  />
-                  <ZAxis type="number" dataKey="size" range={[60, 200]} />
-                  <Tooltip
-                    content={({ payload }) => {
-                      if (!payload || !payload.length) return null;
-                      const d = payload[0]?.payload as { name: string; correct: number; cost: number; provider: string };
-                      if (!d) return null;
-                      return (
-                        <div className="bg-surface-raised border border-surface-border rounded-lg px-3 py-2 text-xs">
-                          <p className="font-semibold text-text-primary">{d.name}</p>
-                          <p className="text-text-secondary">{d.correct}% correct · ${d.cost}/run · {d.provider}</p>
-                        </div>
-                      );
+            <h3 className="text-base font-semibold text-text-primary mb-2">Accuracy vs Cost</h3>
+            <p className="text-xs text-text-muted mb-4">Higher + left = better (more accurate, cheaper)</p>
+            <div className="relative h-[360px] border-l border-b border-surface-border/50 ml-10 mr-4">
+              {/* Y-axis labels */}
+              <div className="absolute -left-10 top-0 bottom-0 flex flex-col justify-between text-[10px] text-text-muted font-mono">
+                <span>100%</span><span>90%</span><span>80%</span><span>70%</span><span>60%</span><span>50%</span>
+              </div>
+              {/* X-axis labels */}
+              <div className="absolute -bottom-5 left-0 right-0 flex justify-between text-[10px] text-text-muted font-mono">
+                <span>$0</span><span>$0.005</span><span>$0.010</span><span>$0.015</span><span>$0.020</span>
+              </div>
+              {/* Grid lines */}
+              {[0, 20, 40, 60, 80, 100].map(pct => (
+                <div key={pct} className="absolute left-0 right-0 border-t border-surface-border/20" style={{ bottom: `${pct}%` }} />
+              ))}
+              {/* Dots */}
+              {MODELS.map((m) => {
+                const x = (m.costPerRun / 0.02) * 100;
+                const y = ((m.correct - 50) / 50) * 100;
+                return (
+                  <div
+                    key={m.model}
+                    className="absolute w-4 h-4 rounded-full border-2 border-void -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-150 transition-transform group"
+                    style={{
+                      left: `${Math.min(x, 98)}%`,
+                      bottom: `${Math.min(y, 98)}%`,
+                      backgroundColor: PROVIDER_COLORS[m.provider] || '#71717A',
                     }}
-                  />
-                  <Scatter
-                    data={MODELS.map(m => ({
-                      name: m.model,
-                      cost: m.costPerRun,
-                      correct: m.correct,
-                      provider: m.provider,
-                      size: Math.round(100 / m.p95 * 50),
-                    }))}
+                    title={`${m.model}: ${m.correct}% correct, $${m.costPerRun}/run`}
                   >
-                    {MODELS.map((m, i) => (
-                      <Cell key={i} fill={PROVIDER_COLORS[m.provider] || '#71717A'} />
-                    ))}
-                  </Scatter>
-                </ScatterChart>
-              </ResponsiveContainer>
+                    <div className="hidden group-hover:block absolute bottom-6 left-1/2 -translate-x-1/2 bg-surface-raised border border-surface-border rounded-lg px-3 py-2 text-xs whitespace-nowrap z-10 shadow-xl">
+                      <p className="font-semibold text-text-primary">{m.model}</p>
+                      <p className="text-text-secondary">{m.correct}% correct · ${m.costPerRun}/run</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <div className="flex flex-wrap gap-3 mt-3 justify-center">
+            <div className="flex flex-wrap gap-3 mt-8 justify-center">
               {Object.entries(PROVIDER_COLORS).map(([provider, color]) => (
                 <div key={provider} className="flex items-center gap-1.5 text-xs text-text-muted">
                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
@@ -376,38 +360,46 @@ export default function ReportPage() {
           </div>
 
           <div className="space-y-1">
-            <div className="grid grid-cols-[1fr_6rem_7rem] gap-2 pb-2 border-b border-surface-border">
-              <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider">Model</span>
-              <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider text-right">Monthly</span>
-              <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider text-right">vs GPT-4o</span>
-            </div>
-            {top5.map((m) => {
-              const cost = monthlyCost(m.costPerRun);
-              const gpt4oMonthlyCost = monthlyCost(gpt4oCost);
-              const diff = cost - gpt4oMonthlyCost;
-              const isWinner = m.rank === 1;
-              const isGpt4o = m.model === 'GPT-4o';
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-surface-border">
+                    <th className="py-2 text-left text-[11px] font-medium text-text-muted uppercase tracking-wider">Model</th>
+                    <th className="py-2 text-right text-[11px] font-medium text-text-muted uppercase tracking-wider whitespace-nowrap">Monthly Cost</th>
+                    <th className="py-2 text-right text-[11px] font-medium text-text-muted uppercase tracking-wider whitespace-nowrap">vs GPT-4o</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {top5.map((m) => {
+                    const cost = monthlyCost(m.costPerRun);
+                    const gpt4oMonthlyCost = monthlyCost(gpt4oCost);
+                    const diff = cost - gpt4oMonthlyCost;
+                    const isWinner = m.rank === 1;
+                    const isGpt4o = m.model === 'GPT-4o';
 
-              return (
-                <div
-                  key={m.model}
-                  className={`grid grid-cols-[1fr_6rem_7rem] gap-2 py-2.5 border-b border-surface-border/30 ${
-                    isWinner ? 'bg-ember/5 -mx-5 px-5 rounded' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm ${isWinner ? 'text-ember font-medium' : 'text-text-secondary'}`}>{m.model}</span>
-                    {isWinner && <span className="text-[10px] bg-ember/20 text-ember px-1.5 py-0.5 rounded-full font-semibold">Winner</span>}
-                  </div>
-                  <span className="text-sm font-mono text-right text-text-primary">${cost.toFixed(0)}/mo</span>
-                  <span className={`text-sm font-mono text-right ${
-                    isGpt4o ? 'text-text-muted' : diff < 0 ? 'text-success' : 'text-danger'
-                  }`}>
-                    {isGpt4o ? '—' : `${diff < 0 ? '-' : '+'}$${Math.abs(diff).toFixed(0)}/mo`}
-                  </span>
-                </div>
-              );
-            })}
+                    return (
+                      <tr
+                        key={m.model}
+                        className={`border-b border-surface-border/30 ${isWinner ? 'bg-ember/5' : ''}`}
+                      >
+                        <td className="py-2.5 pr-4">
+                          <div className="flex items-center gap-2">
+                            <span className={`${isWinner ? 'text-ember font-medium' : 'text-text-secondary'}`}>{m.model}</span>
+                            {isWinner && <span className="text-[10px] bg-ember/20 text-ember px-1.5 py-0.5 rounded-full font-semibold shrink-0">Winner</span>}
+                          </div>
+                        </td>
+                        <td className="py-2.5 text-right font-mono text-text-primary whitespace-nowrap">${cost.toFixed(0)}/mo</td>
+                        <td className={`py-2.5 text-right font-mono whitespace-nowrap ${
+                          isGpt4o ? 'text-text-muted' : diff < 0 ? 'text-success' : 'text-danger'
+                        }`}>
+                          {isGpt4o ? '—' : `${diff < 0 ? '-' : '+'}$${Math.abs(diff).toFixed(0)}/mo`}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="mt-4 flex items-center gap-2 px-4 py-3 bg-success/10 rounded-lg">

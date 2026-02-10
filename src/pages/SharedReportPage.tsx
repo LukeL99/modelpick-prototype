@@ -162,7 +162,7 @@ export default function SharedReportPage() {
                 <ScatterChart margin={{ left: 10, right: 20, top: 10, bottom: 10 }}>
                   <XAxis type="number" dataKey="cost" tickFormatter={(v: number) => `$${v}`} tick={{ fill: '#A1A1AA', fontSize: 11 }} axisLine={{ stroke: '#2A2A2D' }} tickLine={false} />
                   <YAxis type="number" dataKey="correct" domain={[50, 100]} tick={{ fill: '#A1A1AA', fontSize: 11 }} axisLine={{ stroke: '#2A2A2D' }} tickLine={false} />
-                  <ZAxis type="number" dataKey="size" range={[60, 200]} />
+                  <ZAxis type="number" dataKey="size" range={[200, 500]} />
                   <Tooltip content={({ payload }) => {
                     if (!payload?.length) return null;
                     const d = payload[0]?.payload as { name: string; correct: number; cost: number };
