@@ -28,7 +28,7 @@ function MetricTooltip({ label }: { label: string }) {
   return (
     <span className="relative group/tip inline-flex ml-1 align-middle">
       <Info size={12} className="text-text-muted cursor-help hover:text-ember transition-colors" />
-      <span className="hidden group-hover/tip:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 px-3 py-2 text-xs text-text-secondary bg-surface border border-ember/40 rounded-lg shadow-xl z-50 font-normal normal-case tracking-normal pointer-events-none">
+      <span className="hidden group-hover/tip:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 px-3 py-2 text-xs text-text-secondary bg-surface border border-ember/40 rounded-lg shadow-xl z-[100] font-normal normal-case tracking-normal pointer-events-none">
         {text}
       </span>
     </span>
@@ -152,9 +152,9 @@ export default function ReportPage() {
         </div>
 
         {/* (c) Ranked Results Table */}
-        <div className="bg-surface border border-surface-border rounded-2xl overflow-hidden">
+        <div className="bg-surface border border-surface-border rounded-2xl overflow-visible">
           <h2 className="text-lg font-semibold px-6 pt-6 pb-4">All Models Ranked</h2>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto overflow-y-visible">
               <table className="w-full text-sm min-w-[800px]">
                 <thead>
                   <tr className="bg-surface-raised">
