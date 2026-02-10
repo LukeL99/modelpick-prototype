@@ -270,7 +270,7 @@ export default function ReportPage() {
             <p className="text-sm text-text-muted mb-6">
               Higher + left = better · Bubble size = response time <MetricTooltip label="Response Time" /> (smaller = faster) · Opacity = consistency <MetricTooltip label="Spread" /> (solid = predictable)
             </p>
-            <div className="relative h-[500px] border-l border-b border-surface-border/50 ml-12 mr-6">
+            <div className="relative h-[560px] border-l border-b border-surface-border/50 ml-12 mr-6 mt-8">
               {/* Y-axis labels */}
               <div className="absolute -left-12 top-0 bottom-0 flex flex-col justify-between text-xs text-text-muted font-mono pb-1">
                 <span></span><span>100%</span><span>90%</span><span>80%</span><span>70%</span><span>60%</span><span>50%</span>
@@ -292,8 +292,8 @@ export default function ReportPage() {
                 const yMax = 105;
                 const y = ((m.correct - yMin) / (yMax - yMin)) * 100;
                 // Size: p95-based, inverted so smaller p95 = smaller bubble (faster = better = smaller)
-                const minSize = 20;
-                const maxSize = 64;
+                const minSize = 16;
+                const maxSize = 48;
                 const sizeRatio = m.p95 / maxP95;
                 const size = minSize + sizeRatio * (maxSize - minSize);
                 // Opacity: spread-based, lower spread = more opaque (more consistent = better)
