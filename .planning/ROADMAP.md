@@ -28,12 +28,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can provide an extraction prompt and see the system-inferred JSON schema with option to override it
   4. User can configure their testing plan by ranking priorities, selecting model strategy, choosing sample count, and seeing estimated cost and confidence before proceeding to payment
   5. User can access a dashboard showing their past reports (empty state for new users)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md -- Foundation + Auth: Next.js project setup, Supabase config, auth UI, dashboard
+- [ ] 01-02-PLAN.md -- Wizard Steps 1-2: wizard shell, config step (priorities/strategy/count), upload step (images + JSON editor)
+- [ ] 01-03-PLAN.md -- Wizard Step 3 + Business Logic: schema inference, cost estimation, model recommendation, completion flow
 
 ### Phase 2: Pay and Run
 **Goal**: User can pay $14.99 via Stripe and the system executes benchmarks across up to 24 vision models with real-time cost control
@@ -76,7 +76,7 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Configure Benchmark | 0/3 | Not started | - |
+| 1. Configure Benchmark | 0/3 | Planned | - |
 | 2. Pay and Run | 0/3 | Not started | - |
 | 3. Results and Report | 0/3 | Not started | - |
 
