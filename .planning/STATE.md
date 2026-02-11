@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 1 of 3 (Configure Benchmark)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: Executing
-Last activity: 2026-02-11 -- Completed 01-02-PLAN.md
+Last activity: 2026-02-11 -- Completed 01-03-PLAN.md
 
-Progress: [████░░░░░░] 17%
+Progress: [██████░░░░] 25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: ~5.5 min
-- Total execution time: 0.18 hours
+- Total plans completed: 3
+- Average duration: ~6 min
+- Total execution time: 0.4 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-configure-benchmark | 2 | ~11 min | ~5.5 min |
+| 01-configure-benchmark | 3 | ~18 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (~8 min), 01-02 (~3 min)
-- Trend: Accelerating
+- Last 5 plans: 01-01 (~8 min), 01-02 (~3 min), 01-03 (~7 min)
+- Trend: Consistent
 
 *Updated after each plan completion*
 
@@ -53,11 +53,16 @@ Recent decisions affecting current work:
 - [01-02]: Fixed middleware route protection to match actual URL paths not route group names
 - [01-02]: Social buttons above divider, email/password form below on auth pages
 - [01-02]: Sign-out button as separate client component to keep app layout as server component
+- [01-03]: @dnd-kit/react move() takes (items, event) not (items, source, target) -- research API mismatch
+- [01-03]: Draft query helpers use SupabaseClient<any> to avoid generic mismatch with untyped createClient()
+- [01-03]: StepUpload uses imagesRef for async upload callbacks to prevent stale closures
+- [01-03]: Upload data strips parsedJson and blob URLs before persisting to database
 
 ### Pending Todos
 
 - User must configure Supabase project and set env vars in .env.local
 - User must run database migration in Supabase SQL Editor
+- User must create `benchmark-images` storage bucket in Supabase
 
 ### Blockers/Concerns
 
@@ -66,5 +71,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 01-02-PLAN.md (auth UI & dashboard)
-Resume file: .planning/phases/01-configure-benchmark/01-02-SUMMARY.md
+Stopped at: Completed 01-03-PLAN.md (wizard Steps 1 & 2)
+Resume file: .planning/phases/01-configure-benchmark/01-03-SUMMARY.md
