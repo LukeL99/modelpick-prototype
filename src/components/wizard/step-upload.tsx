@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { nanoid } from "nanoid";
-import { ImageUploader } from "@/components/wizard/image-uploader";
 import { ImageCard } from "@/components/wizard/image-card";
 import { createClient } from "@/lib/supabase/client";
 import type { ImageEntry } from "@/types/wizard";
@@ -21,7 +20,7 @@ export function StepUpload({
   onImagesChange,
 }: StepUploadProps) {
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [uploadingIds, setUploadingIds] = useState<Set<string>>(new Set());
+  const [uploadingSlots, setUploadingSlots] = useState<Set<number>>(new Set());
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Keep a ref to the current images so async callbacks see the latest state
@@ -36,12 +35,13 @@ export function StepUpload({
     errorTimerRef.current = setTimeout(() => setUploadError(null), 5000);
   }, []);
 
-  const handleFilesAccepted = useCallback(
-    async (files: File[]) => {
+  // Upload a single file for a specific slot index
+  const handleFileForSlot = useCallback(
+    async (slotIndex: number, file: File) => {
       const supabase = createClient();
 
-      // Create placeholder entries with local preview URLs immediately
-      const newEntries: ImageEntry[] = files.map((file) => ({
+      // Create placeholder entry with local preview URL
+      const entry: ImageEntry = {
         id: nanoid(),
         path: "",
         publicUrl: URL.createObjectURL(file),
@@ -50,69 +50,90 @@ export function StepUpload({
         expectedJson: "",
         jsonValid: false,
         parsedJson: null,
-      }));
+      };
 
       // Add to state immediately for instant preview
-      const updatedImages = [...imagesRef.current, ...newEntries];
-      onImagesChange(updatedImages);
-
-      // Track uploading state
-      const newUploadingIds = new Set(newEntries.map((e) => e.id));
-      setUploadingIds((prev) => new Set([...prev, ...newUploadingIds]));
-
-      // Upload each file sequentially
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const entry = newEntries[i];
-
-        try {
-          // Get signed URL
-          const signedRes = await fetch("/api/upload/signed-url", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              filename: file.name,
-              contentType: file.type,
-              draftId,
-            }),
-          });
-
-          if (!signedRes.ok) {
-            const err = await signedRes.json();
-            throw new Error(err.error || "Failed to get signed URL");
-          }
-
-          const { token, path } = await signedRes.json();
-
-          // Upload directly to Supabase Storage
-          const { error: uploadErr } = await supabase.storage
-            .from("benchmark-images")
-            .uploadToSignedUrl(path, token, file);
-
-          if (uploadErr) throw uploadErr;
-
-          // Update the entry with storage path, keep blob URL for in-session preview
-          const current = imagesRef.current;
-          onImagesChange(
-            current.map((img) =>
-              img.id === entry.id ? { ...img, path } : img
-            )
-          );
-        } catch (err) {
-          const message =
-            err instanceof Error ? err.message : "Upload failed";
-          showError(`Failed to upload ${file.name}: ${message}`);
-
-          // Remove the failed entry using latest ref
-          const current = imagesRef.current;
-          onImagesChange(current.filter((img) => img.id !== entry.id));
-        } finally {
-          setUploadingIds((prev) => {
-            const next = new Set(prev);
-            next.delete(entry.id);
-            return next;
+      const current = imagesRef.current;
+      // Replace any existing image at this slot index, or add at position
+      const updated = [...current];
+      // Find if there's already an entry for this slot (by matching position in array)
+      // The slot-to-image mapping: images array indices correspond to slot indices
+      // If images[slotIndex] exists, we replace it; otherwise we insert/grow
+      if (slotIndex < updated.length) {
+        // Revoke old blob URL if present
+        if (updated[slotIndex].publicUrl.startsWith("blob:")) {
+          URL.revokeObjectURL(updated[slotIndex].publicUrl);
+        }
+        updated[slotIndex] = entry;
+      } else {
+        // Fill any gaps with entries up to slotIndex
+        // (normally shouldn't happen since slots are filled in order, but just in case)
+        while (updated.length < slotIndex) {
+          updated.push({
+            id: nanoid(),
+            path: "",
+            publicUrl: "",
+            filename: "",
+            fileSize: 0,
+            expectedJson: "",
+            jsonValid: false,
+            parsedJson: null,
           });
         }
+        updated.push(entry);
+      }
+      onImagesChange(updated);
+
+      // Track uploading state
+      setUploadingSlots((prev) => new Set([...prev, slotIndex]));
+
+      try {
+        // Get signed URL
+        const signedRes = await fetch("/api/upload/signed-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            filename: file.name,
+            contentType: file.type,
+            draftId,
+          }),
+        });
+
+        if (!signedRes.ok) {
+          const err = await signedRes.json();
+          throw new Error(err.error || "Failed to get signed URL");
+        }
+
+        const { token, path } = await signedRes.json();
+
+        // Upload directly to Supabase Storage
+        const { error: uploadErr } = await supabase.storage
+          .from("benchmark-images")
+          .uploadToSignedUrl(path, token, file);
+
+        if (uploadErr) throw uploadErr;
+
+        // Update the entry with storage path
+        const latestImages = imagesRef.current;
+        onImagesChange(
+          latestImages.map((img) =>
+            img.id === entry.id ? { ...img, path } : img
+          )
+        );
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Upload failed";
+        showError(`Failed to upload ${file.name}: ${message}`);
+
+        // Remove the failed entry using latest ref
+        const latestImages = imagesRef.current;
+        onImagesChange(latestImages.filter((img) => img.id !== entry.id));
+      } finally {
+        setUploadingSlots((prev) => {
+          const next = new Set(prev);
+          next.delete(slotIndex);
+          return next;
+        });
       }
     },
     [draftId, onImagesChange, showError]
@@ -143,12 +164,13 @@ export function StepUpload({
   );
 
   const handleRemove = useCallback(
-    async (imageId: string) => {
-      const image = images.find((img) => img.id === imageId);
+    async (slotIndex: number) => {
+      const image = images[slotIndex];
       if (!image) return;
 
-      // Remove from state immediately
-      onImagesChange(images.filter((img) => img.id !== imageId));
+      // Remove from state: remove at slot index, don't just filter
+      const updated = images.filter((_, i) => i !== slotIndex);
+      onImagesChange(updated);
 
       // Delete from storage if uploaded
       if (image.path) {
@@ -168,11 +190,11 @@ export function StepUpload({
     [images, onImagesChange]
   );
 
-  const validCount = images.filter((img) => img.jsonValid).length;
-  const totalCount = images.length;
+  // Create N slots based on sampleCount
+  const slots = Array.from({ length: sampleCount }, (_, i) => i);
+  const savedCount = images.filter((img) => img.jsonValid).length;
   const allValid =
-    totalCount >= sampleCount && validCount === totalCount;
-  const needsImages = totalCount < sampleCount;
+    images.length === sampleCount && images.every((img) => img.jsonValid);
 
   return (
     <div className="space-y-6">
@@ -181,17 +203,11 @@ export function StepUpload({
           Upload Sample Images
         </h2>
         <p className="text-sm text-text-secondary">
-          Upload images and provide the expected JSON output for each. This is
-          the &ldquo;ground truth&rdquo; we will use to score model accuracy.
+          Upload {sampleCount} image{sampleCount !== 1 ? "s" : ""} and provide
+          the expected JSON output for each. This is the &ldquo;ground
+          truth&rdquo; we will use to score model accuracy.
         </p>
       </div>
-
-      {/* Upload zone */}
-      <ImageUploader
-        currentCount={totalCount}
-        onFilesAccepted={handleFilesAccepted}
-        onError={showError}
-      />
 
       {/* Error message */}
       {uploadError && (
@@ -200,72 +216,78 @@ export function StepUpload({
         </div>
       )}
 
-      {/* Image cards */}
-      {images.length > 0 && (
-        <div className="space-y-3">
-          {images.map((image) => (
+      {/* Slot-based card grid */}
+      <div className="space-y-3">
+        {slots.map((slotIndex) => {
+          const image = images[slotIndex] ?? null;
+          const isUploading = uploadingSlots.has(slotIndex);
+
+          return (
             <ImageCard
-              key={image.id}
+              key={slotIndex}
+              slotIndex={slotIndex}
               image={image}
-              uploading={uploadingIds.has(image.id)}
-              onJsonChange={(value) => handleJsonChange(image.id, value)}
-              onValidChange={(isValid, parsed) =>
-                handleValidChange(image.id, isValid, parsed)
-              }
-              onRemove={() => handleRemove(image.id)}
+              uploading={isUploading}
+              onFileAccepted={(file: File) => handleFileForSlot(slotIndex, file)}
+              onJsonChange={(value) => {
+                if (image) handleJsonChange(image.id, value);
+              }}
+              onValidChange={(isValid, parsed) => {
+                if (image) handleValidChange(image.id, isValid, parsed);
+              }}
+              onRemove={() => handleRemove(slotIndex)}
+              onError={showError}
             />
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
 
       {/* Validation summary */}
-      {totalCount > 0 && (
-        <div className="space-y-2">
-          {/* Progress bar */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-2 rounded-full bg-surface-raised overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-300 ${
-                  allValid ? "bg-emerald-500" : "bg-ember"
-                }`}
-                style={{
-                  width:
-                    totalCount > 0
-                      ? `${(validCount / totalCount) * 100}%`
-                      : "0%",
-                }}
-              />
-            </div>
-            <span
-              className={`text-sm font-medium ${
-                allValid ? "text-emerald-400" : "text-text-secondary"
+      <div className="space-y-2">
+        {/* Progress bar */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-2 rounded-full bg-surface-raised overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${
+                allValid ? "bg-emerald-500" : "bg-ember"
               }`}
-            >
-              {validCount}/{totalCount}
-            </span>
+              style={{
+                width:
+                  sampleCount > 0
+                    ? `${(savedCount / sampleCount) * 100}%`
+                    : "0%",
+              }}
+            />
           </div>
-
-          {/* Status message */}
-          {!allValid && (
-            <p className="text-sm text-text-muted">
-              {needsImages
-                ? `Upload ${sampleCount - totalCount} more image${sampleCount - totalCount === 1 ? "" : "s"} to continue (${sampleCount} required).`
-                : `All images must have valid JSON output before continuing. ${
-                    totalCount - validCount
-                  } image${
-                    totalCount - validCount === 1 ? "" : "s"
-                  } need${
-                    totalCount - validCount === 1 ? "s" : ""
-                  } JSON.`}
-            </p>
-          )}
-          {allValid && (
-            <p className="text-sm text-emerald-400">
-              All images have valid JSON. Ready to continue.
-            </p>
-          )}
+          <span
+            className={`text-sm font-medium ${
+              allValid ? "text-emerald-400" : "text-text-secondary"
+            }`}
+          >
+            {savedCount}/{sampleCount}
+          </span>
         </div>
-      )}
+
+        {/* Status message */}
+        {!allValid && (
+          <p className="text-sm text-text-muted">
+            {images.length < sampleCount
+              ? `Upload ${sampleCount - images.length} more image${sampleCount - images.length === 1 ? "" : "s"} and add valid JSON to continue.`
+              : `All images must have valid JSON output before continuing. ${
+                  sampleCount - savedCount
+                } image${
+                  sampleCount - savedCount === 1 ? "" : "s"
+                } need${
+                  sampleCount - savedCount === 1 ? "s" : ""
+                } valid JSON.`}
+          </p>
+        )}
+        {allValid && (
+          <p className="text-sm text-emerald-400">
+            All images have valid JSON. Ready to continue.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
