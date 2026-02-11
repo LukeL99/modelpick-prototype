@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 01-configure-benchmark
 source: 01-01-SUMMARY.md, 01-02-SUMMARY.md, 01-03-SUMMARY.md, 01-04-SUMMARY.md
 started: 2026-02-11T20:00:00Z
@@ -72,7 +72,17 @@ skipped: 3
   reason: "User reported: I enabled row level security in supabase. getting message: Failed to upload screen.png: new row violates row-level security policy"
   severity: blocker
   test: 7
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "No RLS policies exist on storage.objects table for benchmark-images bucket. Policies were designed in research phase but left commented out and never added to migration."
+  artifacts:
+    - path: "supabase/migrations/001_initial_schema.sql"
+      issue: "Missing storage.objects RLS policies for benchmark-images bucket"
+    - path: "src/app/api/upload/signed-url/route.ts"
+      issue: "createSignedUploadUrl fails under RLS without INSERT policy"
+    - path: "src/components/wizard/step-upload.tsx"
+      issue: "uploadToSignedUrl, getPublicUrl, and remove all fail without policies"
+  missing:
+    - "INSERT policy on storage.objects for authenticated users (bucket_id = 'benchmark-images', folder ownership via auth.uid())"
+    - "SELECT policy on storage.objects for authenticated users (own files)"
+    - "DELETE policy on storage.objects for authenticated users (own files)"
+    - "UPDATE policy on storage.objects for authenticated users (own files)"
+  debug_session: ".planning/debug/rls-upload-blocker.md"
