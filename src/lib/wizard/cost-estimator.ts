@@ -128,3 +128,35 @@ export function estimateCost(config: CostEstimateInput): CostEstimate {
 export function getModelCostPerRun(model: ModelInfo): number {
   return Math.round(costPerRun(model) * 1_000_000) / 1_000_000;
 }
+
+/** Maximum runs per model to cap optimization (diminishing returns beyond this) */
+const MAX_OPTIMIZED_RUNS = 20;
+
+/** Minimum runs per model (need at least 3 for meaningful statistics) */
+const MIN_OPTIMIZED_RUNS = 3;
+
+/**
+ * Calculate optimal runs per model to maximize budget utilization.
+ * Automatically fills the budget based on selected models and sample count.
+ */
+export function optimizeRunsForBudget(
+  selectedModels: ModelInfo[],
+  sampleCount: number,
+  budget: number = API_BUDGET_CEILING
+): number {
+  if (selectedModels.length === 0 || sampleCount === 0) return MIN_OPTIMIZED_RUNS;
+
+  // Cost of running all selected models once per sample
+  const costPerRound = selectedModels.reduce(
+    (sum, model) => sum + costPerRun(model),
+    0
+  ) * sampleCount;
+
+  if (costPerRound === 0) return MAX_OPTIMIZED_RUNS;
+
+  // Calculate max affordable runs
+  const maxAffordable = Math.floor(budget / costPerRound);
+
+  // Clamp between min and max
+  return Math.max(MIN_OPTIMIZED_RUNS, Math.min(maxAffordable, MAX_OPTIMIZED_RUNS));
+}

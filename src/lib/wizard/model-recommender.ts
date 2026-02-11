@@ -177,16 +177,10 @@ export function recommendModels(config: RecommendConfig): RecommendedModelSet {
     }
   }
 
-  // Calculate final estimate for reasoning
-  const finalEstimate = estimateCost({
-    selectedModels: finalModels,
-    runsPerModel,
-    sampleCount,
-  });
-
   // Build reasoning string
   const primaryPriority = priorities[0];
-  const reasoning = `${finalModels.length} models selected with ${runsPerModel} runs each, prioritizing ${primaryPriority}. Estimated $${finalEstimate.estimatedCost.toFixed(2)} of $${API_BUDGET_CEILING.toFixed(2)} budget.`;
+  const strategyLabel = strategy === "quick-survey" ? "broad coverage" : strategy === "deep-dive" ? "deep analysis" : "balanced coverage";
+  const reasoning = `${finalModels.length} models selected for ${strategyLabel}, prioritizing ${primaryPriority}. Runs per model automatically optimized to maximize testing within your plan.`;
 
   return {
     models: finalModels,

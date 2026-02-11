@@ -6,17 +6,18 @@ import { ImageUploader } from "@/components/wizard/image-uploader";
 import { ImageCard } from "@/components/wizard/image-card";
 import { createClient } from "@/lib/supabase/client";
 import type { ImageEntry } from "@/types/wizard";
-import { MIN_IMAGES } from "@/lib/config/constants";
 
 interface StepUploadProps {
   images: ImageEntry[];
   draftId: string;
+  sampleCount: number;
   onImagesChange: (images: ImageEntry[]) => void;
 }
 
 export function StepUpload({
   images,
   draftId,
+  sampleCount,
   onImagesChange,
 }: StepUploadProps) {
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -169,8 +170,9 @@ export function StepUpload({
 
   const validCount = images.filter((img) => img.jsonValid).length;
   const totalCount = images.length;
-  const allValid = totalCount > 0 && validCount === totalCount;
-  const needsImages = totalCount < MIN_IMAGES;
+  const allValid =
+    totalCount >= sampleCount && validCount === totalCount;
+  const needsImages = totalCount < sampleCount;
 
   return (
     <div className="space-y-6">
@@ -247,7 +249,7 @@ export function StepUpload({
           {!allValid && (
             <p className="text-sm text-text-muted">
               {needsImages
-                ? `Upload at least ${MIN_IMAGES} image to continue.`
+                ? `Upload ${sampleCount - totalCount} more image${sampleCount - totalCount === 1 ? "" : "s"} to continue (${sampleCount} required).`
                 : `All images must have valid JSON output before continuing. ${
                     totalCount - validCount
                   } image${

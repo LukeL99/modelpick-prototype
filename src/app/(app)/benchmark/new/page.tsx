@@ -321,7 +321,10 @@ export default function NewBenchmarkPage() {
       );
     }
     if (step === "upload") {
-      return images.length >= 1 && images.every((img) => img.jsonValid);
+      return (
+        images.length >= configData.sampleCount &&
+        images.every((img) => img.jsonValid)
+      );
     }
     // Step 3 uses its own "Ready for Payment" CTA, not the Continue button
     return false;
@@ -381,6 +384,7 @@ export default function NewBenchmarkPage() {
           <StepUpload
             images={images}
             draftId={draftId}
+            sampleCount={configData.sampleCount}
             onImagesChange={handleImagesChange}
           />
         )}

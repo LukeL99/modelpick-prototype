@@ -17,7 +17,7 @@ import {
   checkSchemaForUnionTypes,
 } from "@/lib/schema/validate";
 import { recommendModels } from "@/lib/wizard/model-recommender";
-import { estimateCost } from "@/lib/wizard/cost-estimator";
+import { estimateCost, optimizeRunsForBudget } from "@/lib/wizard/cost-estimator";
 import { CURATED_MODELS } from "@/lib/config/models";
 import type { ModelInfo } from "@/types/benchmark";
 import type {
@@ -152,6 +152,12 @@ export function StepSchema({
     setSelectedModels(models);
   }, []);
 
+  // Auto-optimize runs per model to fill budget based on current selection
+  const optimizedRuns = useMemo(
+    () => optimizeRunsForBudget(selectedModels, sampleCount),
+    [selectedModels, sampleCount]
+  );
+
   // Schema override handler
   const handleSchemaOverride = useCallback(
     (source: SchemaSource, schema: string) => {
@@ -170,7 +176,7 @@ export function StepSchema({
         ? (() => {
             const est = estimateCost({
               selectedModels,
-              runsPerModel: recommendation.runsPerModel,
+              runsPerModel: optimizedRuns,
               sampleCount,
             });
             return { cost: est.estimatedCost, runs: est.totalRuns };
@@ -197,7 +203,7 @@ export function StepSchema({
     selectedModels,
     inferredSchema,
     onSaveSchema,
-    recommendation.runsPerModel,
+    optimizedRuns,
     sampleCount,
   ]);
 
@@ -331,10 +337,10 @@ export function StepSchema({
           </p>
         </div>
 
-        {/* Cost preview */}
+        {/* Testing plan preview */}
         <CostPreview
           selectedModels={selectedModels}
-          runsPerModel={recommendation.runsPerModel}
+          runsPerModel={optimizedRuns}
           sampleCount={sampleCount}
         />
       </div>
