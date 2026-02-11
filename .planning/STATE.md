@@ -5,33 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Users can see exactly which vision model extracts their specific document data most accurately and cheaply -- with field-level error diffs showing precisely where each model fails.
-**Current focus:** Phase 1 - Configure Benchmark
+**Current focus:** Phase 2 - Pay and Run
 
 ## Current Position
 
-Phase: 1 of 3 (Configure Benchmark) -- COMPLETE
-Plan: 6 of 6 in current phase (all plans complete, including gap closure)
-Status: Phase Complete
-Last activity: 2026-02-11 -- Completed 01-06-PLAN.md (gap closure)
+Phase: 2 of 3 (Pay and Run)
+Plan: 2 of 3 in current phase
+Status: Executing
+Last activity: 2026-02-11 -- Completed 02-02-PLAN.md (benchmark engine utilities)
 
-Progress: [████████░░] 33%
+Progress: [████████████░░░] 53%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: ~5 min
-- Total execution time: 0.5 hours
+- Total plans completed: 8
+- Average duration: ~6 min
+- Total execution time: 0.8 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-configure-benchmark | 6 | ~30 min | ~5 min |
+| 02-pay-and-run | 2 | ~20 min | ~10 min |
 
 **Recent Trend:**
-- Last 6 plans: 01-01 (~8 min), 01-02 (~3 min), 01-03 (~7 min), 01-04 (~6 min), 01-05 (~5 min), 01-06 (~3 min)
-- Trend: Consistent
+- Last 6 plans: 01-04 (~6 min), 01-05 (~5 min), 01-06 (~3 min), 02-01 (~6 min), 02-02 (~14 min)
+- Trend: TDD plans take longer (expected)
 
 *Updated after each plan completion*
 
@@ -67,6 +68,9 @@ Recent decisions affecting current work:
 - [01-06]: Slot-to-image mapping via array index (images[slotIndex]) for direct slot-to-image correspondence
 - [01-06]: Saved state managed locally per ImageCard, initialized from jsonValid on mount for draft restoration
 - [01-06]: SlotDropzone kept in image-uploader.tsx with renamed export (same file, different component name)
+- [02-02]: CostTracker uses softCeiling as hardCeiling when only one arg provided
+- [02-02]: Vitest with node environment and @/ path alias matching tsconfig
+- [02-02]: Mock runner seeds random from modelId+imageUrl for deterministic varied results
 
 ### Pending Todos
 
@@ -81,5 +85,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 01-06-PLAN.md (Phase 1 gap closure complete -- slot-based upload UX)
-Resume file: .planning/phases/01-configure-benchmark/01-06-SUMMARY.md
+Stopped at: Completed 02-02-PLAN.md (benchmark engine utilities -- JSON compare, backoff, cost tracker, runner)
+Resume file: .planning/phases/02-pay-and-run/02-02-SUMMARY.md
