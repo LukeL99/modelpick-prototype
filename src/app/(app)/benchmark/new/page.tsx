@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryState, parseAsStringEnum } from "nuqs";
 import { WizardShell } from "@/components/wizard/wizard-shell";
 import { StepConfig } from "@/components/wizard/step-config";
+import { StepUpload } from "@/components/wizard/step-upload";
 import type { WizardStep, Priority, Strategy, ImageEntry } from "@/types/wizard";
 import type { BenchmarkDraft } from "@/types/database";
 import {
@@ -20,18 +21,10 @@ interface ConfigData {
   sampleCount: number;
 }
 
-interface UploadData {
-  images: ImageEntry[];
-}
-
 const DEFAULT_CONFIG: ConfigData = {
   priorities: DEFAULT_PRIORITIES,
   strategy: DEFAULT_STRATEGY,
   sampleCount: DEFAULT_SAMPLE_COUNT,
-};
-
-const DEFAULT_UPLOAD: UploadData = {
-  images: [],
 };
 
 export default function NewBenchmarkPage() {
@@ -42,14 +35,17 @@ export default function NewBenchmarkPage() {
 
   const [draftId, setDraftId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
   const [configData, setConfigData] = useState<ConfigData>(DEFAULT_CONFIG);
-  const [uploadData, setUploadData] = useState<UploadData>(DEFAULT_UPLOAD);
+  const [images, setImages] = useState<ImageEntry[]>([]);
   const [completedSteps, setCompletedSteps] = useState<Set<WizardStep>>(
     new Set()
   );
 
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const configSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const uploadSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Initialize draft: load existing or create new
   useEffect(() => {
@@ -75,8 +71,7 @@ export default function NewBenchmarkPage() {
           }
         }
 
-        // No draft param -- try to find the most recent active draft
-        // or create a new one
+        // No draft param -- create a new draft
         const createRes = await fetch("/api/drafts", { method: "POST" });
         if (createRes.ok) {
           const draft: BenchmarkDraft = await createRes.json();
@@ -85,7 +80,6 @@ export default function NewBenchmarkPage() {
             setLoading(false);
           }
         } else {
-          // Might fail if not authenticated
           if (!cancelled) setLoading(false);
         }
       } catch {
@@ -107,72 +101,102 @@ export default function NewBenchmarkPage() {
         strategy: (cd.strategy as Strategy) ?? DEFAULT_STRATEGY,
         sampleCount: (cd.sampleCount as number) ?? DEFAULT_SAMPLE_COUNT,
       });
-      // If config data exists, mark config as completed
       setCompletedSteps((prev) => new Set([...prev, "config"]));
     }
 
     const ud = draft.upload_data as Record<string, unknown> | null;
     if (ud && Object.keys(ud).length > 0) {
-      setUploadData({
-        images: (ud.images as ImageEntry[]) ?? [],
-      });
-      // If upload data has images with valid JSON, mark upload as completed
-      const images = (ud.images as ImageEntry[]) ?? [];
-      if (images.length > 0 && images.every((img) => img.jsonValid)) {
+      const loadedImages = (ud.images as ImageEntry[]) ?? [];
+      setImages(loadedImages);
+      if (loadedImages.length > 0 && loadedImages.every((img) => img.jsonValid)) {
         setCompletedSteps((prev) => new Set([...prev, "config", "upload"]));
       }
     }
   }
 
-  // Auto-save config data with debounce
-  const saveDraftConfig = useCallback(
-    (data: ConfigData) => {
+  // Shared save utility
+  const saveDraftStep = useCallback(
+    async (stepName: "config" | "upload", data: Record<string, unknown>) => {
       if (!draftId) return;
-
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-      }
-
-      saveTimerRef.current = setTimeout(async () => {
-        setSaveStatus("saving");
-        try {
-          const res = await fetch(`/api/drafts/${draftId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              step: "config",
-              data: {
-                priorities: data.priorities,
-                strategy: data.strategy,
-                sampleCount: data.sampleCount,
-              },
-            }),
-          });
-          if (res.ok) {
-            setSaveStatus("saved");
-            setTimeout(() => setSaveStatus("idle"), 2000);
-          } else {
-            setSaveStatus("error");
-          }
-        } catch {
+      setSaveStatus("saving");
+      try {
+        const res = await fetch(`/api/drafts/${draftId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ step: stepName, data }),
+        });
+        if (res.ok) {
+          setSaveStatus("saved");
+          setTimeout(() => setSaveStatus("idle"), 2000);
+        } else {
           setSaveStatus("error");
         }
-      }, 500);
+      } catch {
+        setSaveStatus("error");
+      }
     },
     [draftId]
+  );
+
+  // Auto-save config data with debounce
+  const debounceSaveConfig = useCallback(
+    (data: ConfigData) => {
+      if (configSaveTimerRef.current) {
+        clearTimeout(configSaveTimerRef.current);
+      }
+      configSaveTimerRef.current = setTimeout(() => {
+        saveDraftStep("config", {
+          priorities: data.priorities,
+          strategy: data.strategy,
+          sampleCount: data.sampleCount,
+        });
+      }, 500);
+    },
+    [saveDraftStep]
+  );
+
+  // Auto-save upload data with debounce
+  const debounceSaveUpload = useCallback(
+    (imgs: ImageEntry[]) => {
+      if (uploadSaveTimerRef.current) {
+        clearTimeout(uploadSaveTimerRef.current);
+      }
+      uploadSaveTimerRef.current = setTimeout(() => {
+        // Strip parsedJson (large objects) and local blob URLs from persistence
+        const serializableImages = imgs.map((img) => ({
+          id: img.id,
+          path: img.path,
+          publicUrl: img.publicUrl.startsWith("blob:") ? "" : img.publicUrl,
+          filename: img.filename,
+          fileSize: img.fileSize,
+          expectedJson: img.expectedJson,
+          jsonValid: img.jsonValid,
+          parsedJson: null,
+        }));
+        saveDraftStep("upload", { images: serializableImages });
+      }, 500);
+    },
+    [saveDraftStep]
   );
 
   const handleConfigChange = useCallback(
     (newConfig: ConfigData) => {
       setConfigData(newConfig);
-      saveDraftConfig(newConfig);
+      debounceSaveConfig(newConfig);
     },
-    [saveDraftConfig]
+    [debounceSaveConfig]
+  );
+
+  const handleImagesChange = useCallback(
+    (newImages: ImageEntry[]) => {
+      setImages(newImages);
+      debounceSaveUpload(newImages);
+    },
+    [debounceSaveUpload]
   );
 
   const handleStepChange = useCallback(
     (newStep: WizardStep) => {
-      // Mark the current step as completed when advancing forward
       const stepOrder: WizardStep[] = ["config", "upload", "schema"];
       const currentIdx = stepOrder.indexOf(step!);
       const newIdx = stepOrder.indexOf(newStep);
@@ -189,7 +213,6 @@ export default function NewBenchmarkPage() {
   // Determine if current step can continue
   const canContinue = (() => {
     if (step === "config") {
-      // Config always has defaults, so it's always valid
       return (
         configData.priorities.length === 3 &&
         configData.strategy !== undefined &&
@@ -197,10 +220,8 @@ export default function NewBenchmarkPage() {
       );
     }
     if (step === "upload") {
-      // All images must have valid JSON
       return (
-        uploadData.images.length >= 1 &&
-        uploadData.images.every((img) => img.jsonValid)
+        images.length >= 1 && images.every((img) => img.jsonValid)
       );
     }
     return false;
@@ -256,10 +277,12 @@ export default function NewBenchmarkPage() {
             onConfigChange={handleConfigChange}
           />
         )}
-        {step === "upload" && (
-          <div className="text-text-muted text-center py-20">
-            <p>Step 2: Upload will be implemented in Task 2</p>
-          </div>
+        {step === "upload" && draftId && (
+          <StepUpload
+            images={images}
+            draftId={draftId}
+            onImagesChange={handleImagesChange}
+          />
         )}
         {step === "schema" && (
           <div className="text-text-muted text-center py-20">
