@@ -1,73 +1,72 @@
-# React + TypeScript + Vite
+# ModelPick
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Find the best vision model for your structured data extraction — backed by 1,000 real API calls.**
 
-Currently, two official plugins are available:
+🌐 [Live Demo](https://modelpick-demo.lukelibraro.com) · 🏠 [Landing Page](https://modelpick.lukelibraro.com) · 📄 [Full PRD](./docs/PRD.md)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## What It Does
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Upload 3 sample images (receipts, invoices, documents) + the correct JSON output → ModelPick benchmarks **20 vision models × 50 runs each** and delivers a ranked report with:
 
-## Expanding the ESLint configuration
+- **Accuracy** — Binary exact-match (JSON matches or it doesn't)
+- **Cost per run** — Actual $ from OpenRouter pricing
+- **Response times** — Median (P50) and P95
+- **Consistency** — Spread (IQR) showing how reliable each model is
+- **"Where It Missed"** — Field-level error diffs showing exactly which fields each model gets wrong
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Key Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- 🎯 **1,000 API calls per report** — 20 models × 50 runs for statistical significance
+- 🔍 **Exact-match accuracy** — No fuzzy scores; JSON matches or it doesn't
+- 📊 **Interactive bubble chart** — Cost vs accuracy vs speed at a glance
+- 💰 **Cost calculator** — See how much switching models saves per month
+- ⚡ **Real-time results** — WebSocket streaming as each model completes (~1-2 min total)
+- 📄 **PDF export + shareable link**
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Tech Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19 + Vite + Tailwind CSS v4 |
+| Charts | CSS-based scatter/bubble plots |
+| Backend | Python + FastAPI + asyncio |
+| API | OpenRouter (all 20 vision models) |
+| Payments | Stripe ($14.99/report + $7.50/mo subscription) |
+| Real-time | WebSocket |
+
+## Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+
+# Build for production
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+├── docs/
+│   └── PRD.md              # Full product spec (V2)
+├── src/
+│   ├── components/          # React components
+│   ├── pages/               # Route pages
+│   ├── assets/              # Static assets
+│   └── App.tsx              # Root component
+├── public/                  # Static files
+├── index.html
+├── package.json
+├── vite.config.ts
+├── tailwind.config.ts
+└── tsconfig.json
+```
+
+## License
+
+MIT
