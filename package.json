@@ -15,6 +15,7 @@
     "@dnd-kit/helpers": "^0.2.4",
     "@dnd-kit/react": "^0.2.4",
     "@jsonhero/schema-infer": "^0.1.0",
+    "@react-email/components": "^1.0.7",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.0",
     "@uiw/codemirror-theme-vscode": "latest",
@@ -28,6 +29,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-dropzone": "^14.3.0",
+    "resend": "^6.9.2",
     "stripe": "^20.3.1",
     "zod": "^3.23.0"
   },
