@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FileJson,
   CheckCircle2,
-  ArrowRight,
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -113,8 +112,6 @@ export function StepSchema({
   const [userSchema, setUserSchema] = useState(
     savedSchemaData?.userSchema ?? ""
   );
-  const [isComplete, setIsComplete] = useState(false);
-
   // Model recommendation
   const recommendation = useMemo(
     () =>
@@ -227,36 +224,8 @@ export function StepSchema({
 
   const handleComplete = useCallback(() => {
     if (!canComplete) return;
-    setIsComplete(true);
     onComplete();
   }, [canComplete, onComplete]);
-
-  // Success state
-  if (isComplete) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 space-y-6">
-        <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center">
-          <CheckCircle2 className="w-8 h-8 text-emerald-400" />
-        </div>
-        <div className="text-center space-y-2">
-          <h2 className="text-xl font-bold text-text-primary">
-            Benchmark Configured!
-          </h2>
-          <p className="text-sm text-text-secondary max-w-md">
-            Your benchmark is ready. Payment will be available soon.
-            You can review or edit your configuration anytime.
-          </p>
-        </div>
-        <a
-          href="/dashboard"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-ember text-white font-semibold hover:bg-ember-hover transition-colors"
-        >
-          Return to Dashboard
-          <ArrowRight className="w-4 h-4" />
-        </a>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">
