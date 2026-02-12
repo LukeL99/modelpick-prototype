@@ -65,7 +65,7 @@ Each task was committed atomically:
 
 1. **Task 1: Create MockProvider context and update all consumers** - `3aeb361` (feat)
 
-**Plan metadata:** [pending] (docs: complete plan)
+**Plan metadata:** `159bf4d` (docs: complete plan)
 
 ## Files Created/Modified
 - `src/lib/debug/mock-provider.tsx` - New: MockProvider context component and useMocks() hook
