@@ -67,18 +67,25 @@ export async function PATCH(
         estimatedRuns?: number;
       };
 
-    if (!step || !data || !["config", "upload", "schema"].includes(step)) {
+    // Step save (optional -- status-only updates skip this)
+    if (step) {
+      if (!data || !["config", "upload", "schema"].includes(step)) {
+        return NextResponse.json(
+          {
+            error:
+              "Invalid request. Step requires valid name ('config'|'upload'|'schema') and data.",
+          },
+          { status: 400 }
+        );
+      }
+      await saveDraftStep(supabase, id, step, data);
+    } else if (!status) {
+      // Neither step nor status provided -- nothing to do
       return NextResponse.json(
-        {
-          error:
-            "Invalid request. Requires step ('config'|'upload'|'schema') and data.",
-        },
+        { error: "Invalid request. Requires step and data, or status." },
         { status: 400 }
       );
     }
-
-    // Save step data
-    await saveDraftStep(supabase, id, step, data);
 
     // If status update requested (e.g., setting to 'ready' on completion)
     if (

@@ -274,6 +274,15 @@ export default function NewBenchmarkPage() {
       estimatedCost: number;
       estimatedRuns: number;
     }) => {
+      // Keep React state in sync with auto-saved data
+      setSavedSchemaData({
+        inferredSchema: data.inferredSchema,
+        userSchema: data.userSchema,
+        prompt: data.prompt,
+        schemaSource: data.schemaSource,
+        selectedModelIds: data.selectedModelIds,
+      });
+
       saveDraftStep("schema", {
         inferredSchema: data.inferredSchema,
         userSchema: data.userSchema,
@@ -290,15 +299,17 @@ export default function NewBenchmarkPage() {
     if (!draftId) return;
     setSaveStatus("saving");
     try {
-      // Update draft status to 'ready' and save final computed fields
+      const body: Record<string, unknown> = { status: "ready" };
+      // Only re-save schema data if we have it (should always be true after auto-save)
+      if (savedSchemaData) {
+        body.step = "schema";
+        body.data = savedSchemaData;
+      }
+
       const res = await fetch(`/api/drafts/${draftId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          step: "schema",
-          data: savedSchemaData ?? {},
-          status: "ready",
-        }),
+        body: JSON.stringify(body),
       });
       if (res.ok) {
         setSaveStatus("saved");
@@ -312,7 +323,7 @@ export default function NewBenchmarkPage() {
     } catch {
       setSaveStatus("error");
     }
-  }, [draftId, savedSchemaData, saveDraftStep]);
+  }, [draftId, savedSchemaData]);
 
   // Determine if current step can continue
   const canContinue = (() => {
