@@ -5,35 +5,35 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Users can see exactly which vision model extracts their specific document data most accurately and cheaply -- with field-level error diffs showing precisely where each model fails.
-**Current focus:** Phase 2 - Pay and Run
+**Current focus:** Phase 2 - Pay and Run (gap closure complete)
 
 ## Current Position
 
-Phase: 2 of 3 (Pay and Run) -- COMPLETE
-Plan: 3 of 3 in current phase (all complete)
-Status: Phase 2 complete, ready for Phase 3
-Last activity: 2026-02-12 -- Completed quick-1 (Rebrand ModelPick to ModelBlitz)
+Phase: 2 of 3 (Pay and Run) -- COMPLETE (including gap closure)
+Plan: 5 of 5 in current phase (all complete, including 2 gap closure plans)
+Status: Phase 2 fully complete with gap closures, ready for Phase 3
+Last activity: 2026-02-12 -- Completed 02-05 (MockProvider context replacing NEXT_PUBLIC_DEBUG_MOCKS)
 
-Progress: [████████████████░░░] 67%
+Progress: [█████████████████░░] 73%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: ~6 min
-- Total execution time: 0.9 hours
+- Total plans completed: 12
+- Average duration: ~5 min
+- Total execution time: ~1 hour
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-configure-benchmark | 6 | ~30 min | ~5 min |
-| 02-pay-and-run | 3 | ~26 min | ~9 min |
+| 02-pay-and-run | 5 | ~28 min | ~6 min |
 | quick tasks | 1 | ~1 min | ~1 min |
 
 **Recent Trend:**
-- Last 6 plans: 01-06 (~3 min), 02-01 (~16 min), 02-02 (~14 min), 02-03 (~6 min), quick-1 (~1 min)
-- Trend: Phase 2 complete, quick task executed
+- Last 6 plans: 02-01 (~16 min), 02-02 (~14 min), 02-03 (~6 min), quick-1 (~1 min), 02-04, 02-05 (~2 min)
+- Trend: Phase 2 gap closure complete
 
 *Updated after each plan completion*
 
@@ -78,6 +78,7 @@ Recent decisions affecting current work:
 - [02-03]: Nested concurrency control: global pLimit(10) wrapping per-model pLimit(3) for rate limit protection
 - [02-03]: Dynamic import for email module to keep engine loosely coupled from email infrastructure
 - [02-03]: Email sender uses RESEND_FROM_EMAIL env var with fallback to Resend onboarding sender for development
+- [02-05]: MockProvider as separate "use client" file to keep mock-config.ts server-only
 
 ### Pending Todos
 
@@ -98,5 +99,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed quick-1 (Rebrand ModelPick to ModelBlitz)
-Resume file: .planning/quick/1-rebrand-modelpick-to-modelblitz-domain-m/1-SUMMARY.md
+Stopped at: Completed 02-05 (MockProvider context replacing NEXT_PUBLIC_DEBUG_MOCKS)
+Resume file: .planning/phases/02-pay-and-run/02-05-SUMMARY.md
