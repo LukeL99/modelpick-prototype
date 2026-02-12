@@ -13,7 +13,7 @@ ModelPick delivers a paid one-shot benchmarking report for vision model structur
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Configure Benchmark** - Auth, image upload, wizard -- everything before payment
-- [x] **Phase 2: Pay and Run** - Stripe payment triggers benchmark engine execution
+- [ ] **Phase 2: Pay and Run** - Stripe payment triggers benchmark engine execution
 - [ ] **Phase 3: Results and Report** - Real-time progress, full report, sharing, export
 
 ## Phase Details
@@ -48,12 +48,14 @@ Plans:
   3. System benchmarks selected models via OpenRouter, capturing JSON output, response time, token count, cost, and pass/fail per run
   4. JSON comparison uses canonicalization (key sort, number normalization, whitespace) with binary exact-match default and relaxed matching toggle
   5. System enforces per-model concurrency limits with adaptive backoff on rate limits and a hard ~$7 API cost ceiling per report
-**Plans**: 3 plans
+**Plans**: 5 plans
 
 Plans:
 - [x] 02-01-PLAN.md -- Stripe payment infrastructure: checkout API, webhook handler, DB migration, admin client, processing page
 - [x] 02-02-PLAN.md -- Benchmark engine utilities: JSON canonicalization/comparison, adaptive backoff, cost tracker, model runner
 - [x] 02-03-PLAN.md -- Engine orchestration + email: concurrency-controlled benchmark loop, cost ceiling enforcement, report completion email
+- [ ] 02-04-PLAN.md -- Gap closure: Fix wizard data flow (savedSchemaData sync, flash page removal, correct model count)
+- [ ] 02-05-PLAN.md -- Gap closure: Replace NEXT_PUBLIC_DEBUG_MOCKS with MockProvider context deriving from DEBUG_MOCK_* vars
 
 ### Phase 3: Results and Report
 **Goal**: User sees real-time benchmark progress and receives a comprehensive, shareable report with ranked results, visualizations, error analysis, and export options
@@ -79,8 +81,8 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Configure Benchmark | 6/6 | ✓ Complete | 2026-02-11 |
-| 2. Pay and Run | 3/3 | ✓ Complete | 2026-02-11 |
+| 1. Configure Benchmark | 6/6 | Complete | 2026-02-11 |
+| 2. Pay and Run | 3/5 | Gap closure | - |
 | 3. Results and Report | 0/3 | Not started | - |
 
 ---
