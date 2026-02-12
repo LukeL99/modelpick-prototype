@@ -1,113 +1,106 @@
 ---
 phase: 02-pay-and-run
-verified: 2026-02-12T19:15:00Z
+verified: 2026-02-12T17:03:00Z
 status: passed
-score: 12/12 must-haves verified
+score: 13/13 must-haves verified
 re_verification:
   previous_status: passed
-  previous_verified: 2026-02-11T23:30:00Z
-  previous_score: 9/9
-  uat_status: diagnosed
-  uat_gaps_found: 3
+  previous_verified: 2026-02-12T19:15:00Z
+  previous_score: 12/12
+  uat_round: 3
+  uat_gaps_found: 1
   gaps_closed:
-    - "Confirmation screen shows correct model count matching wizard selections"
-    - "Mock payment succeeds without 400 error (schema_data retains selectedModelIds)"
-    - "No flash 'Benchmark Configured' page between wizard Step 3 and confirmation"
-    - "Mock indicator badge derives from DEBUG_MOCK_* env vars (no redundant NEXT_PUBLIC_DEBUG_MOCKS)"
+    - "JSON data preserved through navigation cycle (back-to-edit from confirmation -> Upload step -> click Edit -> JSON is present)"
   gaps_remaining: []
   regressions: []
-  gap_closure_plans: ["02-04", "02-05"]
-  gap_closure_commits: ["839a680", "2a0808b", "3aeb361", "159bf4d"]
+  gap_closure_plans: ["02-06"]
+  gap_closure_commits: ["8039953"]
 ---
 
-# Phase 02: Pay and Run Re-Verification Report
+# Phase 02: Pay and Run Re-Verification Report (Round 3)
 
 **Phase Goal:** User can pay $14.99 via Stripe and the system executes benchmarks across up to 24 vision models with real-time cost control
-**Verified:** 2026-02-12T19:15:00Z
+
+**Verified:** 2026-02-12T17:03:00Z
+
 **Status:** PASSED
-**Re-verification:** Yes — after UAT gap closure (plans 02-04, 02-05)
+
+**Re-verification:** Yes — after UAT Round 2 gap closure (plan 02-06)
 
 ## Re-Verification Context
 
-**Previous Verification:** 2026-02-11T23:30:00Z — Status: PASSED (9/9 truths verified)
+**Previous Verification:** 2026-02-12T19:15:00Z — Status: PASSED (12/12 truths verified)
 
-**User Acceptance Testing:** Conducted 2026-02-12 — Found 3 gaps:
-1. **Major:** Confirmation screen showed 0 models, flash success page, back-to-edit lost data
-2. **Major:** Mock payment failed with "No valid models selected" 400 error
-3. **Minor:** Mock indicator used redundant NEXT_PUBLIC_DEBUG_MOCKS instead of DEBUG_MOCK_* vars
+**User Acceptance Testing Round 2:** Conducted 2026-02-12 — Found 1 gap:
 
-**Root Causes Identified:**
-- Gap 1 & 2: `savedSchemaData` React state never updated during wizard session, causing handleComplete to overwrite schema_data with `{}` and destroy selectedModelIds
-- Gap 3: NEXT_PUBLIC_DEBUG_MOCKS was redundant client-side env var disconnected from server-side DEBUG_MOCK_* vars
+1. **Major:** JSON data lost on back-to-edit navigation (UAT Test 2 failed)
+   - User reported: "The JSON data for an image still isn't there. The prompt is correct"
+   - Root cause: Stale closure race in step-upload.tsx where `handleJsonChange` and `handleValidChange` both closed over same `images` array and called `onImagesChange` synchronously, React 18 batched the two `setImages` calls, last-writer-wins discarded `expectedJson`
 
-**Gap Closure Plans:**
-- Plan 02-04: Fixed wizard data flow (setSavedSchemaData sync, removed flash page, PATCH endpoint defensive)
-- Plan 02-05: Replaced NEXT_PUBLIC_DEBUG_MOCKS with MockProvider React context
+**Gap Closure Plan:**
+
+- Plan 02-06: Merged `onChange` + `onValidChange` into single atomic `onChange(value, isValid, parsed)` callback throughout the chain (JsonEditor -> ImageCard -> StepUpload), eliminating the stale closure race by producing only one `setImages` call per keystroke
 
 ## Goal Achievement
 
 ### Observable Truths (Original 9 from Initial Verification)
 
+All original truths remain verified with no regressions. Gap closure (plan 02-06) affected only the wizard JSON editing callback chain, not the payment or benchmark engine subsystems.
+
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | Benchmark engine iterates over selected models and runs each against all images with concurrency control | ✓ VERIFIED | engine.ts lines 220-234, 384-387 (no changes in gap closure) |
-| 2 | Engine enforces per-model concurrency limit of 3 and global concurrency limit of 10 | ✓ VERIFIED | engine.ts lines 210-214, constants.ts lines 73-76 (no changes) |
-| 3 | Engine aborts remaining work when cost ceiling is reached and marks report as partial | ✓ VERIFIED | engine.ts lines 241-254, 206 (no changes) |
-| 4 | Engine gracefully shuts down when approaching 750s elapsed time | ✓ VERIFIED | engine.ts line 36, lines 258-273 (no changes) |
-| 5 | Each completed run is written to benchmark_runs table in real-time | ✓ VERIFIED | engine.ts lines 276-289, 349-365, 305-318, 370-379 (no changes) |
-| 6 | Report status transitions: paid -> running -> complete (or failed) | ✓ VERIFIED | engine.ts lines 84-86, 92, 592, 155, 197, 409, 638 (no changes) |
-| 7 | Report completion email is sent via Resend with link to report; email failure is non-fatal | ✓ VERIFIED | engine.ts lines 600-630, send-report-ready.ts lines 71-91 (no changes) |
-| 8 | Mock email mode logs email content instead of sending | ✓ VERIFIED | send-report-ready.ts lines 39-50 (no changes) |
-| 9 | Engine calculates recommended model from results using priority-weighted scoring | ✓ VERIFIED | engine.ts lines 525-565, 576 (no changes) |
+| 1 | Benchmark engine iterates over selected models and runs each against all images with concurrency control | ✓ VERIFIED | engine.ts lines 212, 220 (no changes) |
+| 2 | Engine enforces per-model concurrency limit of 3 and global concurrency limit of 10 | ✓ VERIFIED | engine.ts line 206 uses CostTracker, constants documented (no changes) |
+| 3 | Engine aborts remaining work when cost ceiling is reached and marks report as partial | ✓ VERIFIED | engine.ts lines 18, 206, 240 (no changes) |
+| 4 | Engine gracefully shuts down when approaching 750s elapsed time | ✓ VERIFIED | engine.ts lines 7, 35, 257 (no changes) |
+| 5 | Each completed run is written to benchmark_runs table in real-time | ✓ VERIFIED | engine.ts lines 283, 362, 374 (status: running/complete/failed, no changes) |
+| 6 | Report status transitions: paid -> running -> complete (or failed) | ✓ VERIFIED | engine.ts lines 89, 92, 155, 197, 283, 309, 362, 374, 409 (no changes) |
+| 7 | Report completion email is sent via Resend with link to report; email failure is non-fatal | ✓ VERIFIED | engine.ts lines 609-612 (sendReportReadyEmail, no changes) |
+| 8 | Mock email mode logs email content instead of sending | ✓ VERIFIED | send-report-ready.ts lines 4, 40, 86 (DEBUG_MOCK_EMAIL, no changes) |
+| 9 | Engine calculates recommended model from results using priority-weighted scoring | ✓ VERIFIED | engine.ts lines 531-576 (scoring, normalization, recommendedModelId, no changes) |
 
 **Score:** 9/9 original truths verified (no regressions)
 
-### Observable Truths (Gap Closure — New from Plans 02-04, 02-05)
+### Observable Truths (Gap Closure — Plan 02-06)
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 10 | Confirmation screen shows correct model count matching what user selected in wizard | ✓ VERIFIED | page.tsx line 278-284: setSavedSchemaData called in handleSaveSchema; line 369: selectedModels={savedSchemaData?.selectedModelIds ?? []}; confirmation-screen.tsx line 95: {selectedModels.length} |
-| 11 | Mock payment succeeds (no 400 error) because schema_data retains selectedModelIds after handleComplete | ✓ VERIFIED | page.tsx lines 302-307: handleComplete conditionally includes savedSchemaData; route.ts lines 71-88: PATCH supports status-only updates; checkout validates models from schema_data |
-| 12 | No flash 'Benchmark Configured' page between wizard Step 3 and confirmation screen | ✓ VERIFIED | step-schema.tsx: no "isComplete" state or "Benchmark Configured" text found (grep confirmed); handleComplete calls onComplete() directly |
+| 10 | User pastes JSON into editor, saves card, navigates to Step 3, completes wizard, clicks Back to Edit, goes to Upload step, clicks Edit on card -- JSON data is present | ✓ VERIFIED | json-editor.tsx line 51: onChange(value, isValid, parsed); image-card.tsx line 247: onChange={onJsonUpdate}; step-upload.tsx lines 142-153: handleJsonUpdate atomically sets expectedJson, jsonValid, parsedJson in single onImagesChange call |
+| 11 | JSON validation still works: valid JSON enables Save button, invalid JSON disables it | ✓ VERIFIED | json-editor.tsx lines 59-76: handleChange calls onChange(val, isValid, parsed) with correct isValid flag; image-card.tsx line 255: disabled={!image.jsonValid} |
+| 12 | All existing tests pass after the change | ✓ VERIFIED | npm test output: 50 passed (json-compare, backoff, cost-tracker tests) |
+| 13 | Confirmation screen shows correct model count matching wizard selections (from previous gap closure, still verified) | ✓ VERIFIED | page.tsx line 369: selectedModels={savedSchemaData?.selectedModelIds ?? []} (no changes in 02-06) |
 
-**Score:** 3/3 gap closure truths verified
+**Score:** 4/4 gap closure truths verified
 
-**Overall Score:** 12/12 must-haves verified (9 original + 3 new)
+**Overall Score:** 13/13 must-haves verified (9 original + 4 gap closure from 02-04, 02-05, 02-06)
 
-### Required Artifacts (Gap Closure — Plans 02-04, 02-05)
+### Required Artifacts (Gap Closure — Plan 02-06)
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `src/app/(app)/benchmark/new/page.tsx` | savedSchemaData updated on every auto-save, handleComplete sends correct data | ✓ VERIFIED | 380 lines; setSavedSchemaData called lines 278-284 (before saveDraftStep); handleComplete lines 298-323 conditionally includes savedSchemaData |
-| `src/components/wizard/step-schema.tsx` | No intermediate success page, completion handled by parent | ✓ VERIFIED | 443 lines; no "isComplete" state, no "Benchmark Configured" text, no ArrowRight import; handleComplete calls onComplete() directly |
-| `src/app/api/drafts/[id]/route.ts` | PATCH supports status-only updates without step/data | ✓ VERIFIED | 156 lines; lines 70-88: step is optional, status-only updates supported |
-| `src/lib/debug/mock-provider.tsx` | MockProvider context component and useMocks() hook for client components | ✓ VERIFIED | 28 lines; exports MockProvider and useMocks(); "use client" directive |
-| `src/lib/debug/mock-config.ts` | Server-side mock detection (getClientActiveMocks removed) | ✓ VERIFIED | 42 lines; getClientActiveMocks() not found (grep confirmed); server-side functions intact |
-| `src/components/debug/mock-indicator.tsx` | Badge reads mocks from context, not env var | ✓ VERIFIED | 34 lines; imports useMocks from mock-provider; line 11: const mocks = useMocks() |
-| `src/components/wizard/confirmation-screen.tsx` | Mock stripe detection reads from context | ✓ VERIFIED | 181 lines; imports useMocks; line 31-32: const mocks = useMocks(); const isMock = mocks.includes("stripe") |
-| `src/app/layout.tsx` | MockProvider wrapping children with server-read mock state | ✓ VERIFIED | 67 lines; imports getActiveMocks and MockProvider; line 35: <MockProvider mocks={getActiveMocks()}> |
+| `src/components/wizard/json-editor.tsx` | Single combined onChange callback replacing separate onChange + onValidChange | ✓ VERIFIED | 140 lines; line 51: `onChange: (value, string, isValid: boolean, parsed: unknown) => void`; lines 62, 68, 72: onChange(val, isValid, parsed) called atomically; no onValidChange prop (grep confirmed) |
+| `src/components/wizard/image-card.tsx` | Updated props interface using single onJsonUpdate callback | ✓ VERIFIED | 269 lines; line 14: onJsonUpdate prop type; line 247: onChange={onJsonUpdate} passed to JsonEditor; no onJsonChange or onValidChange props (grep confirmed) |
+| `src/components/wizard/step-upload.tsx` | Single handleJsonUpdate callback that atomically sets expectedJson, jsonValid, and parsedJson | ✓ VERIFIED | 280 lines; lines 142-153: handleJsonUpdate sets all three fields in single onImagesChange call; no handleJsonChange or handleValidChange (grep confirmed) |
 
-**All artifacts:** 8/8 verified (exist, substantive, wired)
+**All artifacts:** 3/3 verified (exist, substantive, wired)
 
-### Key Link Verification (Gap Closure)
+### Key Link Verification (Gap Closure — Plan 02-06)
 
 | From | To | Via | Status | Details |
 |------|-----|-----|--------|---------|
-| `step-schema.tsx` | `page.tsx` | onSaveSchema callback updates savedSchemaData state | ✓ WIRED | page.tsx line 278: setSavedSchemaData() called in handleSaveSchema |
-| `page.tsx` | `confirmation-screen.tsx` | savedSchemaData?.selectedModelIds passed as selectedModels prop | ✓ WIRED | page.tsx line 369: selectedModels={savedSchemaData?.selectedModelIds ?? []}; confirmation-screen.tsx line 17: selectedModels prop type, line 95: displays length |
-| `layout.tsx` | `mock-config.ts` | getActiveMocks() called server-side, result passed to MockProvider | ✓ WIRED | layout.tsx line 4: import getActiveMocks; line 35: mocks={getActiveMocks()} |
-| `mock-provider.tsx` | `mock-indicator.tsx` | useMocks() hook consumed by MockIndicator | ✓ WIRED | mock-indicator.tsx line 3: import useMocks; line 11: const mocks = useMocks() |
-| `mock-provider.tsx` | `confirmation-screen.tsx` | useMocks() hook consumed for isMockStripe check | ✓ WIRED | confirmation-screen.tsx line 8: import useMocks; line 31: const mocks = useMocks() |
+| `json-editor.tsx` | `image-card.tsx` | onChange callback with (value, isValid, parsed) signature | ✓ WIRED | json-editor.tsx line 51: onChange prop signature matches; image-card.tsx line 247: onChange={onJsonUpdate} passes callback directly |
+| `image-card.tsx` | `step-upload.tsx` | onJsonUpdate callback prop | ✓ WIRED | image-card.tsx line 14: onJsonUpdate prop declared; step-upload.tsx line 221-223: inline lambda calls handleJsonUpdate with all three params |
+| `step-upload.tsx` | `page.tsx` | onImagesChange single atomic call with all fields | ✓ WIRED | step-upload.tsx lines 144-150: onImagesChange called once with expectedJson, jsonValid, parsedJson all set; page.tsx receives via onImagesChange prop (unchanged) |
 
-**All key links:** 5/5 verified (wired)
+**All key links:** 3/3 verified (wired)
 
 ### Requirements Coverage
 
-All 9 requirements from Phase 02 remain satisfied (see original verification for details). Gap closure addressed UX issues in the wizard flow but did not change core benchmark/payment functionality.
+All 9 requirements from Phase 02 remain satisfied. Gap closure (plan 02-06) fixed a wizard UX bug (JSON data preservation) but did not change core payment or benchmark engine functionality.
 
 | Requirement | Status | Supporting Truths | Blocking Issue |
 |-------------|--------|-------------------|----------------|
-| PAY-01: User pays $14.99 via Stripe Checkout | ✓ SATISFIED | Truths #6, #10, #11, #12 (wizard flow now correct) | None |
+| PAY-01: User pays $14.99 via Stripe Checkout | ✓ SATISFIED | Truths #6, #13 (wizard flow correct from 02-04, 02-05) | None |
 | PAY-02: Stripe webhook triggers benchmark execution | ✓ SATISFIED | Truth #6 (no changes) | None |
 | PAY-03: User receives email with report link | ✓ SATISFIED | Truth #7 (no changes) | None |
 | BENCH-01: System benchmarks up to 24 curated models | ✓ SATISFIED | Truth #1 (no changes) | None |
@@ -123,112 +116,85 @@ All 9 requirements from Phase 02 remain satisfied (see original verification for
 
 No blocker anti-patterns detected.
 
-**Scanned files (gap closure):**
-- `src/app/(app)/benchmark/new/page.tsx`: No TODOs, placeholders, or empty implementations
-- `src/components/wizard/step-schema.tsx`: No TODOs, placeholders, or empty implementations
-- `src/app/api/drafts/[id]/route.ts`: No TODOs, placeholders, or empty implementations
-- `src/lib/debug/mock-provider.tsx`: No TODOs, placeholders, or empty implementations
-- `src/components/debug/mock-indicator.tsx`: No TODOs, placeholders, or empty implementations
-- `src/components/wizard/confirmation-screen.tsx`: No TODOs, placeholders, or empty implementations
-- `src/app/layout.tsx`: No TODOs, placeholders, or empty implementations
+**Scanned files (gap closure plan 02-06):**
+- `src/components/wizard/json-editor.tsx`: No TODOs/FIXME/PLACEHOLDER comments; return [] and return null are legitimate guard clauses
+- `src/components/wizard/image-card.tsx`: No TODOs/FIXME/PLACEHOLDER comments; return null is legitimate guard clause
+- `src/components/wizard/step-upload.tsx`: One "placeholder" comment is descriptive (line 43: "Create placeholder entry with local preview URL"), not a stub; no empty implementations
 
 **Tests:** All 50 benchmark engine tests pass (json-compare, backoff, cost-tracker)
 
 ### Gap Closure Summary
 
-**All 3 UAT gaps successfully closed:**
+**UAT Round 2 Gap (1 issue) — Successfully Closed:**
 
-#### Gap 1 (Major) — Confirmation Screen Data Loss
-
-**Status:** ✓ CLOSED
-
-**Issue:** Confirmation screen showed 0 models, back-to-edit lost prompt/selections, flash success page
-
-**Root Cause:** savedSchemaData React state never updated during wizard session, causing handleComplete to overwrite schema_data with `{}`
-
-**Fix (Plan 02-04, Tasks 1-2):**
-- Added setSavedSchemaData() call in handleSaveSchema (page.tsx line 278-284) to sync state on every 500ms auto-save
-- Made handleComplete defensive with conditional step/data (page.tsx lines 302-307)
-- Made PATCH endpoint support status-only updates (route.ts lines 71-88)
-- Removed isComplete state and flash success page from StepSchema (step-schema.tsx)
-
-**Verification:**
-- Confirmation screen receives selectedModels prop from savedSchemaData?.selectedModelIds (page.tsx line 369)
-- Displays correct count via {selectedModels.length} (confirmation-screen.tsx line 95)
-- No "isComplete" or "Benchmark Configured" text found in step-schema.tsx (grep confirmed)
-
-#### Gap 2 (Major) — Mock Payment 400 Error
+#### Gap: JSON Data Lost on Back-to-Edit Navigation
 
 **Status:** ✓ CLOSED
 
-**Issue:** Mock payment failed with "No valid models selected" 400 error
+**Issue:** UAT Test 2 failed — user navigated back to Upload step from confirmation screen, clicked Edit on an image card, and the JSON data was empty even though the prompt was preserved
 
-**Root Cause:** Same as Gap 1 — handleComplete overwrote schema_data with `{}`, destroying selectedModelIds
+**Root Cause:** Stale closure race condition in `step-upload.tsx` where:
+1. `handleJsonChange` and `handleValidChange` both closed over the same `images` array
+2. `JsonEditor.handleChange` called both callbacks synchronously
+3. React 18 batched the two `setImages` calls
+4. Last-writer-wins: `handleValidChange` overwrote `expectedJson` with stale value from closure (empty string on first edit)
 
-**Fix (Plan 02-04, Task 1):** Same fix as Gap 1 — savedSchemaData sync ensures handleComplete sends correct data
+**Fix (Plan 02-06, Task 1):**
 
-**Verification:**
-- handleComplete conditionally includes savedSchemaData in body (page.tsx lines 304-306)
-- PATCH endpoint validates step only when provided (route.ts lines 71-81)
-- Checkout API receives schema_data with intact selectedModelIds
+Merged two-callback pattern into single atomic callback throughout the chain:
 
-#### Gap 3 (Minor) — Mock Indicator Redundant Env Var
+1. **json-editor.tsx**: Merged `onChange` + `onValidChange` into single `onChange(value, isValid, parsed)` signature; removed `onValidChange` from props interface; all three exit points in `handleChange` now call `onChange(val, isValid, parsed)` atomically
+2. **image-card.tsx**: Replaced `onJsonChange` + `onValidChange` props with single `onJsonUpdate` prop; passed directly to `JsonEditor.onChange`
+3. **step-upload.tsx**: Replaced `handleJsonChange` + `handleValidChange` with single `handleJsonUpdate` that sets `expectedJson`, `jsonValid`, and `parsedJson` in one `onImagesChange` call
 
-**Status:** ✓ CLOSED
-
-**Issue:** Mock indicator used redundant NEXT_PUBLIC_DEBUG_MOCKS instead of deriving from DEBUG_MOCK_* vars
-
-**Root Cause:** NEXT_PUBLIC_DEBUG_MOCKS was disconnected from server-side DEBUG_MOCK_* vars, already out of sync in .env.local
-
-**Fix (Plan 02-05, Task 1):**
-- Created MockProvider context and useMocks() hook (mock-provider.tsx, 28 lines)
-- Updated MockIndicator to use useMocks() instead of getClientActiveMocks() (mock-indicator.tsx line 11)
-- Updated ConfirmationScreen to use useMocks() for mock stripe detection (confirmation-screen.tsx lines 31-32)
-- Removed getClientActiveMocks() from mock-config.ts (grep confirmed removal)
-- Removed NEXT_PUBLIC_DEBUG_MOCKS from .env.local.example
-- Added MockProvider wrapper in layout.tsx with server-side getActiveMocks() call (layout.tsx line 35)
+**Structural Elimination:** Race condition is structurally impossible now — only ONE `setImages` call per keystroke, containing all updated fields atomically. No refs, no useReducer workaround needed.
 
 **Verification:**
-- NEXT_PUBLIC_DEBUG_MOCKS not found in any source file or env file (grep confirmed)
-- getClientActiveMocks not found in any source file (grep confirmed)
-- MockProvider renders in layout.tsx with server-derived mock list
-- useMocks() consumed in MockIndicator and ConfirmationScreen
+- Grep confirms no `onValidChange` prop exists in any file
+- `handleJsonUpdate` implementation (step-upload.tsx lines 142-153) shows atomic update
+- All 50 existing tests pass
+- TypeScript compiles cleanly (npx tsc --noEmit)
+- Commit 8039953 verified in git history with expected file changes (-33 lines, +14 lines)
 
 ### Human Verification Required
 
-Same as original verification (runtime behavior):
+Same as previous verification (runtime behavior not affected by gap closure):
 
-#### 1. End-to-end mock flow with gap closure fixes
+#### 1. End-to-end mock flow with all gap closure fixes (Plans 02-04, 02-05, 02-06)
 
 **Test:**
 1. Set `DEBUG_MOCK_STRIPE=true`, `DEBUG_MOCK_OPENROUTER=true`, `DEBUG_MOCK_EMAIL=true` in `.env.local`
-2. Complete wizard: upload images, enter schema and prompt, select 15 models
+2. Complete wizard: upload 3 images, paste valid JSON into each, click Save, enter schema and prompt, select 15 models
 3. Verify confirmation screen shows "15" models (not "0")
-4. Click "Pay" button (mock mode)
-5. Verify redirect to processing page (no 400 error)
-6. Click browser back, then "Back to Edit" from confirmation
-7. Verify Step 3 (Schema and Prompt) still shows prompt text and selected models
+4. Click browser back, then "Back to Edit" from confirmation
+5. Verify Step 3 (Schema and Prompt) still shows prompt text and selected models
+6. Navigate to Step 2 (Upload), click "Edit" on the first image card
+7. **Verify JSON editor shows the previously entered JSON data** (not empty)
+8. Navigate back to Step 3, click "Complete Configuration"
+9. Click "Pay" button (mock mode)
+10. Verify redirect to processing page (no 400 error, no flash page)
 
 **Expected:**
-- Confirmation screen displays correct model count (15)
-- Mock payment succeeds without "No valid models selected" error
+- Confirmation screen displays correct model count (15) — from 02-04 fix
+- Mock payment succeeds without "No valid models selected" error — from 02-04 fix
 - Processing page loads immediately (no Stripe redirect)
-- Back-to-edit preserves all wizard data (prompt, schema, models)
-- No flash "Benchmark Configured" page between Step 3 and confirmation
+- Back-to-edit preserves all wizard data including JSON in all images — **NEW: from 02-06 fix**
+- No flash "Benchmark Configured" page between Step 3 and confirmation — from 02-04 fix
+- Mock indicator badge shows all three mocks — from 02-05 fix
 
 **Why human:** Requires running Next.js app with full wizard flow interaction
 
-#### 2. Mock indicator badge accuracy
+#### 2. JSON preservation on re-edit after save
 
 **Test:**
-1. Set `DEBUG_MOCK_STRIPE=true`, `DEBUG_MOCK_OPENROUTER=true`, `DEBUG_MOCK_EMAIL=true`
-2. Start app, check badge in bottom-right corner
+1. Upload image -> paste JSON -> Save (card compacts to single row with green checkmark)
+2. Continue to Step 3 -> fill schema/prompt -> back to Step 2
+3. Click "Edit" on saved card
+4. Verify JSON editor shows the previously saved JSON data
 
-**Expected:**
-- Badge shows all three mocks: "STRIPE | OPENROUTER | EMAIL"
-- Changing any DEBUG_MOCK_* var and restarting app updates badge correctly
+**Expected:** JSON editor re-populates with saved data, not empty
 
-**Why human:** Visual appearance and runtime env var detection
+**Why human:** Visual UI state verification and interaction flow
 
 #### 3. Concurrency control under load
 
@@ -260,39 +226,37 @@ Same as original verification (runtime behavior):
 
 **Status:** PASSED
 
-**Score:** 12/12 must-haves verified (9 original + 3 gap closure)
+**Score:** 13/13 must-haves verified (9 original + 4 gap closure from plans 02-04, 02-05, 02-06)
 
-**Gap Closure:** All 3 UAT gaps successfully closed
-- Gap 1 (Major): Confirmation screen data loss — CLOSED
-- Gap 2 (Major): Mock payment 400 error — CLOSED
-- Gap 3 (Minor): Mock indicator redundant env var — CLOSED
+**UAT Round 2 Gap (1 issue) — Successfully Closed:**
+- Gap: JSON data lost on back-to-edit navigation — CLOSED (plan 02-06)
 
-**Regressions:** None detected (all original 9 truths remain verified)
+**Regressions:** None detected (all original 9 truths remain verified; benchmark engine, payment flow, and email system unchanged)
 
 **Code Quality:**
-- No TODO/FIXME/PLACEHOLDER comments in gap closure files
+- No TODO/FIXME/PLACEHOLDER stub comments in gap closure files
 - No empty implementations or stub functions
 - All 50 existing tests pass (json-compare, backoff, cost-tracker)
-- Build succeeds (`npm run build`)
-- State sync pattern established: auto-save callbacks update both DB and React state
-- Defensive API pattern: PATCH endpoint supports status-only updates for edge case safety
+- TypeScript compiles cleanly (npx tsc --noEmit)
+- Single atomic callback pattern established for multi-field state updates
 
 **Commits Verified:**
-- `839a680` — Fix savedSchemaData sync and handleComplete data correctness
-- `2a0808b` — Remove flash success page from StepSchema
-- `3aeb361` — Create MockProvider context and update all consumers
-- `159bf4d` — Complete plan 02-05 metadata
+- `8039953` — Eliminate stale closure race in JSON editor callbacks (plan 02-06)
+- Previous commits from 02-04, 02-05 verified in previous re-verification
 
 **Phase 02 goal achieved:** User can pay $14.99 via Stripe and the system executes benchmarks across up to 24 vision models with real-time cost control.
 
-**Wizard flow now correct:** Auto-save -> React state sync -> confirmation screen with accurate data -> payment -> processing page (no flash page, no data loss, no 400 errors)
+**All gap closures complete:**
+1. Wizard data flow (02-04) — savedSchemaData sync, confirmation screen accuracy, no flash page
+2. Mock system cleanup (02-05) — MockProvider context replacing NEXT_PUBLIC_DEBUG_MOCKS
+3. JSON preservation (02-06) — stale closure race eliminated via atomic callback pattern
 
-**Mock system clean:** Single source of truth via DEBUG_MOCK_* server-side vars delivered to client via MockProvider context (no manual sync required)
+**Phase 02 is feature-complete with all 6 plans executed (02-01 through 02-06).**
 
-Ready for Phase 3. Human verification recommended for end-to-end mock flow and visual confirmation of fixes.
+Ready for Phase 3. Human verification recommended for full end-to-end mock flow with JSON preservation check.
 
 ---
 
-_Verified: 2026-02-12T19:15:00Z_
+_Verified: 2026-02-12T17:03:00Z_
 _Verifier: Claude (gsd-verifier)_
-_Re-verification after UAT gap closure (plans 02-04, 02-05)_
+_Re-verification Round 3 after UAT Round 2 gap closure (plan 02-06)_
