@@ -270,7 +270,7 @@ export async function runModelBenchmark(params: RunParams): Promise<RunResult> {
 
   try {
     const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "https://modelpick.com";
+      process.env.NEXT_PUBLIC_SITE_URL || "https://modelblitz.com";
 
     // Build request body
     const body = {
@@ -308,7 +308,7 @@ export async function runModelBenchmark(params: RunParams): Promise<RunResult> {
               Authorization: `Bearer ${apiKey}`,
               "Content-Type": "application/json",
               "HTTP-Referer": siteUrl,
-              "X-Title": "ModelPick",
+              "X-Title": "ModelBlitz",
             },
             body: JSON.stringify(body),
           }

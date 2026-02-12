@@ -39,7 +39,7 @@ export async function sendReportReadyEmail(
   if (isMockEmail()) {
     console.log("[email:mock] Report ready email:", {
       to,
-      subject: "Your ModelPick Benchmark Report is Ready",
+      subject: "Your ModelBlitz Benchmark Report is Ready",
       reportId,
       shareToken,
       modelCount,
@@ -60,13 +60,13 @@ export async function sendReportReadyEmail(
   }
 
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://modelpick.com";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://modelblitz.com";
   const reportUrl = `${siteUrl}/report/${shareToken}`;
 
   // Determine sender address
   // Use custom domain if RESEND_FROM_EMAIL is set, otherwise use Resend's onboarding sender
   const fromEmail =
-    process.env.RESEND_FROM_EMAIL || "ModelPick <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL || "ModelBlitz <onboarding@resend.dev>";
 
   try {
     const resend = new Resend(apiKey);
@@ -74,7 +74,7 @@ export async function sendReportReadyEmail(
     await resend.emails.send({
       from: fromEmail,
       to,
-      subject: "Your ModelPick Benchmark Report is Ready",
+      subject: "Your ModelBlitz Benchmark Report is Ready",
       react: ReportReadyEmail({
         modelCount,
         imageCount,

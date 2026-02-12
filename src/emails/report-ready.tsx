@@ -29,17 +29,17 @@ export default function ReportReadyEmail({
   modelCount = 5,
   imageCount = 3,
   recommendedModel = "Gemini 2.5 Flash",
-  reportUrl = "https://modelpick.com/report/demo",
+  reportUrl = "https://modelblitz.com/report/demo",
 }: ReportReadyEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Your ModelPick benchmark report is ready</Preview>
+      <Preview>Your ModelBlitz benchmark report is ready</Preview>
       <Body style={body}>
         <Container style={container}>
           {/* Header */}
           <Section style={header}>
-            <Text style={logo}>ModelPick</Text>
+            <Text style={logo}>ModelBlitz</Text>
           </Section>
 
           {/* Main content */}
@@ -77,7 +77,7 @@ export default function ReportReadyEmail({
           {/* Footer */}
           <Section style={footer}>
             <Text style={footerText}>
-              You received this email because you purchased a ModelPick
+              You received this email because you purchased a ModelBlitz
               benchmark report.
             </Text>
           </Section>

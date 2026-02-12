@@ -51,7 +51,7 @@ export const MAX_SAMPLE_COUNT = 10;
 export const PRICES_AS_OF_DATE = "2026-02-11";
 
 /** Application name */
-export const APP_NAME = "ModelPick";
+export const APP_NAME = "ModelBlitz";
 
 /** Application description */
 export const APP_DESCRIPTION =

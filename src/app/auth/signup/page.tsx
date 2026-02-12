@@ -22,7 +22,7 @@ export default async function SignupPage() {
         <div className="text-center">
           <Link href="/" className="inline-block">
             <span className="text-2xl font-bold text-text-primary">
-              Model<span className="text-ember">Pick</span>
+              Model<span className="text-ember">Blitz</span>
             </span>
           </Link>
           <h1 className="mt-6 text-xl font-semibold text-text-primary">

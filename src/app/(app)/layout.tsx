@@ -25,7 +25,7 @@ export default async function AppLayout({
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2">
             <span className="text-lg font-bold text-text-primary">
-              Model<span className="text-ember">Pick</span>
+              Model<span className="text-ember">Blitz</span>
             </span>
           </Link>
 

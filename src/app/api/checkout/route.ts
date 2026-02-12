@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: "usd",
             product_data: {
-              name: "ModelPick Benchmark Report",
+              name: "ModelBlitz Benchmark Report",
               description: `Benchmark ${selectedModels.length} vision models across ${images.length} images`,
             },
             unit_amount: Math.round(REPORT_PRICE * 100), // Convert to cents

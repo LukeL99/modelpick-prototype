@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ModelPick",
+  title: "ModelBlitz",
   description:
     "Find the best vision model for your structured data extraction. Upload sample images, pay once, get a detailed benchmark report with field-level accuracy diffs.",
 };
