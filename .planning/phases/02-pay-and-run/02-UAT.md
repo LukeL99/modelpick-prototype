@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 02-pay-and-run
 source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md
 started: 2026-02-12T18:00:00Z
@@ -59,7 +59,14 @@ skipped: 0
   reason: "User reported: The JSON data for an image still isn't there. The prompt is correct"
   severity: major
   test: 2
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "Stale closure race in step-upload.tsx: handleJsonChange and handleValidChange both close over same images array and call onImagesChange synchronously from JsonEditor.handleChange. React 18 batching causes second call (handleValidChange) to overwrite first (handleJsonChange), discarding expectedJson update."
+  artifacts:
+    - path: "src/components/wizard/step-upload.tsx"
+      issue: "Two separate callbacks (handleJsonChange L142-151, handleValidChange L153-164) do partial updates to same image object, creating last-writer-wins race"
+    - path: "src/components/wizard/json-editor.tsx"
+      issue: "handleChange (L59-78) calls both onChange and onValidChange synchronously triggering the race"
+    - path: "src/app/(app)/benchmark/new/page.tsx"
+      issue: "handleImagesChange calls setImages which is called twice with stale data"
+  missing:
+    - "Merge handleJsonChange and handleValidChange into single atomic callback that sets expectedJson, jsonValid, and parsedJson in one onImagesChange call"
+  debug_session: ".planning/debug/json-data-lost-on-back-nav.md"
