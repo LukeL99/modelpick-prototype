@@ -68,12 +68,13 @@ Plans:
   3. Report includes bubble chart (cost vs accuracy, size=P95, opacity=consistency), P95 latency bar chart, cost per run bar chart, and OpenRouter baseline comparison
   4. Report shows "Where It Missed" field-level error diffs per model with aggregated error patterns, plus expandable raw run data with individual pass/fail and JSON diffs
   5. Report is accessible via shareable link (no login required), exportable as PDF, and user receives email with report link on completion
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
+- [ ] 03-01-PLAN.md -- Data layer: DB migration (Realtime + anon RLS), report types, aggregate/error-patterns/recommendation utilities
+- [ ] 03-02-PLAN.md -- Live progress: Supabase Realtime subscription in processing page with per-model progress and auto-redirect
+- [ ] 03-03-PLAN.md -- Report page: server component at /report/[token], recommendation card, sortable ranked table, share button
+- [ ] 03-04-PLAN.md -- Report components: SVG charts (bubble/latency/cost), cost calculator, error analysis, raw runs, PDF export
 
 ## Progress
 
@@ -84,7 +85,7 @@ Phases execute in numeric order: 1 -> 2 -> 3
 |-------|----------------|--------|-----------|
 | 1. Configure Benchmark | 6/6 | Complete | 2026-02-11 |
 | 2. Pay and Run | 6/6 | Complete | 2026-02-12 |
-| 3. Results and Report | 0/3 | Not started | - |
+| 3. Results and Report | 0/4 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-11*
