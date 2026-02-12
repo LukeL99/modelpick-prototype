@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Users can see exactly which vision model extracts their specific document data most accurately and cheaply -- with field-level error diffs showing precisely where each model fails.
-**Current focus:** Phase 2 - Pay and Run (gap closure complete)
+**Current focus:** Phase 2 - Pay and Run (all plans + gap closures complete)
 
 ## Current Position
 
-Phase: 2 of 3 (Pay and Run) -- COMPLETE (including gap closure)
-Plan: 5 of 5 in current phase (all complete, including 2 gap closure plans)
-Status: Phase 2 fully complete with gap closures, ready for Phase 3
-Last activity: 2026-02-12 -- Completed 02-05 (MockProvider context replacing NEXT_PUBLIC_DEBUG_MOCKS)
+Phase: 2 of 3 (Pay and Run) -- COMPLETE (including all gap closures)
+Plan: 6 of 6 in current phase (all complete, including 3 gap closure plans)
+Status: Phase 2 fully complete with all gap closures, ready for Phase 3
+Last activity: 2026-02-12 -- Completed 02-06 (Stale closure race fix in JSON editor callbacks)
 
 Progress: [█████████████████░░] 73%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 13
 - Average duration: ~5 min
 - Total execution time: ~1 hour
 
@@ -28,12 +28,12 @@ Progress: [█████████████████░░] 73%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-configure-benchmark | 6 | ~30 min | ~5 min |
-| 02-pay-and-run | 5 | ~28 min | ~6 min |
+| 02-pay-and-run | 6 | ~29 min | ~5 min |
 | quick tasks | 1 | ~1 min | ~1 min |
 
 **Recent Trend:**
-- Last 6 plans: 02-01 (~16 min), 02-02 (~14 min), 02-03 (~6 min), quick-1 (~1 min), 02-04, 02-05 (~2 min)
-- Trend: Phase 2 gap closure complete
+- Last 6 plans: 02-02 (~14 min), 02-03 (~6 min), quick-1 (~1 min), 02-04, 02-05 (~2 min), 02-06 (~1 min)
+- Trend: Phase 2 fully complete with all gap closures
 
 *Updated after each plan completion*
 
@@ -82,6 +82,7 @@ Recent decisions affecting current work:
 - [02-04]: handleComplete conditionally includes step/data for edge case safety when savedSchemaData is null
 - [02-04]: Removed intermediate success page entirely rather than hiding it, keeping StepSchema visible during API call
 - [02-05]: MockProvider as separate "use client" file to keep mock-config.ts server-only
+- [02-06]: Merged onChange + onValidChange into single atomic onChange(value, isValid, parsed) to eliminate stale closure race
 
 ### Pending Todos
 
@@ -102,5 +103,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 02-04 (Wizard data flow fix - savedSchemaData sync)
-Resume file: .planning/phases/02-pay-and-run/02-04-SUMMARY.md
+Stopped at: Completed 02-06 (Stale closure race fix in JSON editor callbacks)
+Resume file: .planning/phases/02-pay-and-run/02-06-SUMMARY.md
