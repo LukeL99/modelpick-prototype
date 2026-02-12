@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { LiveProgress } from "@/components/benchmark/live-progress";
 import type { Report } from "@/types/database";
 
 export default async function ProcessingPage({
@@ -29,9 +30,41 @@ export default async function ProcessingPage({
   }
 
   const typedReport = report as Report;
+
+  // Handle already-complete or failed reports
+  if (typedReport.status === "complete" && typedReport.share_token) {
+    redirect(`/report/${typedReport.share_token}`);
+  }
+
+  if (typedReport.status === "failed") {
+    return (
+      <div className="max-w-xl mx-auto px-6 py-16">
+        <div className="text-center space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-red-400">
+              Benchmark failed
+            </h1>
+            <p className="text-sm text-text-secondary">
+              Something went wrong while running your benchmark. Please try
+              again.
+            </p>
+          </div>
+          <a
+            href="/dashboard"
+            className="inline-block rounded-lg bg-surface-raised px-4 py-2 text-sm font-medium text-text-primary hover:bg-surface-border transition-colors"
+          >
+            Back to dashboard
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   const configSnapshot = typedReport.config_snapshot as Record<string, unknown>;
   const selectedModels = (configSnapshot?.selected_models as string[]) ?? [];
   const imagePaths = typedReport.image_paths ?? [];
+  const sampleCount = (configSnapshot?.sampleCount as number) ?? 1;
+  const totalRunsPerModel = sampleCount * imagePaths.length;
 
   return (
     <div className="max-w-xl mx-auto px-6 py-16">
@@ -73,6 +106,14 @@ export default async function ProcessingPage({
             <p className="text-xs text-text-muted">Images</p>
           </div>
         </div>
+
+        {/* Live Progress */}
+        <LiveProgress
+          reportId={id}
+          selectedModelIds={selectedModels}
+          totalRunsPerModel={totalRunsPerModel}
+          shareToken={typedReport.share_token}
+        />
 
         <div className="pt-4">
           <p className="text-xs text-text-muted">
